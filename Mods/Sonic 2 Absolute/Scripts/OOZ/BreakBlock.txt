@@ -58,7 +58,13 @@ event ObjectMain
 		foreach (GROUP_PLAYERS, currentPlayer, ACTIVE_ENTITIES)
 			BoxCollisionTest(C_BOX, object.entityPos, -32, 24, 32, 64, currentPlayer, HITBOX_AUTO, HITBOX_AUTO, HITBOX_AUTO, HITBOX_AUTO)
 			BoxCollisionTest(C_BOX, object.entityPos, -16, 16, 16, 48, currentPlayer, HITBOX_AUTO, HITBOX_AUTO, HITBOX_AUTO, HITBOX_AUTO)
-			if object[currentPlayer].animation == ANI_JUMPING
+			CheckEqual(object[currentPlayer].animation, ANI_JUMPING)
+			temp0 = checkResult
+			CheckEqual(object[currentPlayer].animation, 48)
+			temp0 |= checkResult
+			CheckEqual(object[currentPlayer].animation, 49)
+			temp0 |= checkResult
+			if temp0 == 1
 				if object.state == 0
 					temp0 = object[currentPlayer].yvel
 					BoxCollisionTest(C_BOX, object.entityPos, -16, -16, 16, 16, currentPlayer, HITBOX_AUTO, HITBOX_AUTO, HITBOX_AUTO, HITBOX_AUTO)

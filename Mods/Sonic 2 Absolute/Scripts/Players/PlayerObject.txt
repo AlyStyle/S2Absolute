@@ -5273,6 +5273,7 @@ end function
 
 
 event ObjectStartup
+	saved.amymoveset = 1
 	playerCount = 0
 	foreach (TypeName[Player Object], arrayPos0, ALL_ENTITIES)
 		screen.cameraEnabled = 1
