@@ -20,16 +20,19 @@ Team Forever
 Team Leads:
 ElspethThePict
 Aprkot
-AlyStyle
+Alexander "AlyStyle" Pinnell
 
 Coding:
 ElspethThePict
 Cosmic Eternity
-AlyStyle
+Alexander "AlyStyle" Pinnell
 Tania
-with contributions from Leonx254
+with contributions by
+	Leonx254
+	GeffGeff (Video Player)
 
 Artists:
+Alexander "AlyStyle" Pinnell
 Aprkot
 Cosmic Eternity
 Cyb
@@ -39,8 +42,9 @@ Retro
 Storice
 TruthTomato
 Viator_
-AlyStyle
-with contribution by GreenKnight9000 & Makoto
+with contribution by
+	GreenKnight9000
+	Makoto
 
 Animation Supervisor:
 Retro
@@ -52,6 +56,7 @@ SNick!
 Credits Medley remastered by DJ Spindash
 
 Testers:
+Alexander "AlyStyle" Pinnell
 BrySkye
 Cosmic Eternity
 Cybercymbre
@@ -67,16 +72,16 @@ Storice
 Tania
 ThunderLeon
 TruthTomato
-AlyStyle
 
 Website:
 Petlamb
-AlyStyle
+Alexander "AlyStyle" Pinnell
 Viator_
 
 Trailers:
+Alexander "AlyStyle" Pinnell
 ElspethThePict
-AlyStyle
+
 
 
 
@@ -119,6 +124,8 @@ RSDKv3/v4 DECOMPILATION by RubberDuckyCooly and RMGRich
 Special thanks to the users of Retro Engine Modding Server
 for their advice, assistance, and feedback.
 	https://dc.railgun.works/retroengine
+
+Special Thanks to huds601, flying fox, and HyperStormH for extra testing and feedback.
 
 Original Game by SEGA® and Sonic Team®
 Ported by Taxman and Stealth
