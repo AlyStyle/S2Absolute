@@ -11,6 +11,7 @@ public alias 256 : GROUP_PLAYERS
 public alias 65536 : HITBOX_AUTO
 public alias arrayPos6 : currentPlayer
 public alias arrayPos7 : playerCount
+private alias 20 : amy.spin.speed
 
 public alias 10 : water.count
 
@@ -50,6 +51,8 @@ public alias saveRAM[296] : saved.transmobile
 public alias saveRAM[297] : saved.TailsMaxDash
 public alias saveRAM[298] : saved.KnuxMaxDash
 public alias saveRAM[300] : saved.SuperMaxDash
+public alias saveRAM[301] : saved.AmyMaxDash
+public alias saveRAM[302] : saved.AmyMoveset
 
 // Function declarations
 reserve function PlayerObject_ProcessPlayer
@@ -93,6 +96,7 @@ reserve function PlayerObject_RestorePowerup
 reserve function PlayerObject_ProcessSuperPalS
 reserve function PlayerObject_ProcessSuperPalT
 reserve function PlayerObject_ProcessSuperPalK
+reserve function PlayerObject_ProcessSuperPalA
 reserve function PlayerObject_SwitchPhysicsState
 reserve function PlayerObject_ProcessSuperState
 reserve function PlayerObject_CheckHit
@@ -124,6 +128,20 @@ reserve function PlayerObject_MoveAnimate
 reserve function PlayerObject_ManiaRotate
 reserve function PlayerObject_TopGlide
 reserve function PlayerObject_EndSuper
+
+reserve function PlayerObject_StartHammerSpin
+reserve function PlayerObject_HandleHammerSpin
+reserve function PlayerObject_StartHammerSwing
+reserve function PlayerObject_HandleHammerSwing
+reserve function PlayerObject_StartHop
+reserve function PlayerObject_OuttaHere
+// object.value35 for Amy
+//0 = Not jumped
+//1 = Jumped
+//2 = DOne both abilities
+//3 = Done Hammer Jump
+//4 = done hop
+
 
 // Static Values
 public value PlayerObject_LeaderX = 0;
@@ -313,6 +331,28 @@ public table PlayerObject_KnuxSuperAltPal
 	0x802040, 0xE04060, 0xE060A0
 end table
 
+public table PlayerObject_AmySuperPal
+	0xE080E0, 0xE060C0, 0xC040A0, 0x802060	
+	0xE0A0E0, 0xE080E0, 0xE060C0, 0xA04080
+	0xE0C0E0, 0xE0A0E0, 0xE080E0, 0xC060A0
+	0xE0E0E0, 0xE0C0E0, 0xE0A0E0, 0xE080C0
+	0xE0E0E0, 0xE0E0E0, 0xE0C0E0, 0xE0A0E0
+	0xE0E0E0, 0xE0C0E0, 0xE0A0E0, 0xE080C0
+	0xE0C0E0, 0xE0A0E0, 0xE080E0, 0xC060A0
+	0xE0A0E0, 0xE080E0, 0xE060C0, 0xA04080
+end table
+
+public table PlayerObject_AmySuperAltPal
+	0xE080E0, 0xE060C0, 0xC040A0, 0x802060	
+	0xE0A0E0, 0xE080E0, 0xE060C0, 0xA04080
+	0xE0C0E0, 0xE0A0E0, 0xE080E0, 0xC060A0
+	0xE0E0E0, 0xE0C0E0, 0xE0A0E0, 0xE080C0
+	0xE0E0E0, 0xE0E0E0, 0xE0C0E0, 0xE0A0E0
+	0xE0E0E0, 0xE0C0E0, 0xE0A0E0, 0xE080C0
+	0xE0C0E0, 0xE0A0E0, 0xE080E0, 0xC060A0
+	0xE0A0E0, 0xE080E0, 0xE060C0, 0xA04080
+end table
+
 public table PlayerObject_SonicPhysicsTable
 	0x60000, 0xC00,  0x1800, 0x600,  0x8000,  0x600, 0x68000, -0x40000
 	0x30000, 0x600,  0xC00,  0x300,  0x4000,  0x300, 0x38000, -0x20000
@@ -336,6 +376,17 @@ public table PlayerObject_TailsPhysicsTable
 end table
 
 public table PlayerObject_KnuxPhysicsTable
+	0x60000, 0xC00,  0x1800, 0x600,  0x8000,  0x600, 0x60000, -0x40000
+	0x30000, 0x600,  0xC00,  0x300,  0x4000,  0x300, 0x30000, -0x20000
+	0xA0000, 0x3000, 0x6000, 0x1800, 0x10000, 0x600, 0x60000, -0x40000
+	0x50000, 0x1800, 0x3000, 0xC00,  0x8000,  0x300, 0x30000, -0x20000
+	0xC0000, 0x1800, 0x3000, 0xC00,  0x8000,  0x600, 0x60000, -0x40000
+	0x60000, 0xC00,  0x1800, 0x600,  0x4000,  0x300, 0x30000, -0x20000
+	0xC0000, 0x1800, 0x3000, 0xC00,  0x8000,  0x600, 0x60000, -0x40000
+	0x60000, 0xC00,  0x1800, 0x600,  0x8000,  0x300, 0x30000, -0x20000
+end table
+
+public table PlayerObject_AmyPhysicsTable
 	0x60000, 0xC00,  0x1800, 0x600,  0x8000,  0x600, 0x60000, -0x40000
 	0x30000, 0x600,  0xC00,  0x300,  0x4000,  0x300, 0x30000, -0x20000
 	0xA0000, 0x3000, 0x6000, 0x1800, 0x10000, 0x600, 0x60000, -0x40000
@@ -582,6 +633,50 @@ function PlayerObject_ProcessSuperPalK
 	SetPaletteEntry(1, 28, temp0)
 end function
 
+function PlayerObject_ProcessSuperPalA
+	if PlayerObject_SuperState == 1
+		PlayerObject_value3++
+		if PlayerObject_value3 >= 12
+			PlayerObject_value3 = 9
+			PlayerObject_value2 += 3
+			if PlayerObject_value2 >= 30
+				PlayerObject_value3 = 0
+				PlayerObject_value2 = 0
+			end if
+		end if
+	else
+		if PlayerObject_value2 > 15
+			FlipSign(PlayerObject_value2)
+			PlayerObject_value2 += 30
+		end if
+		PlayerObject_value3++
+		if PlayerObject_value3 >= 12
+			PlayerObject_value3 = 0
+			PlayerObject_value2 -= 3
+			if PlayerObject_value2 <= 0
+				PlayerObject_value2 = 0
+				PlayerObject_SuperState = 0
+			end if
+		end if
+	end if
+	temp1 = PlayerObject_value2
+	GetTableValue(temp0, temp1, PlayerObject_KnuxSuperPal)
+	SetPaletteEntry(0, 26, temp0)
+	GetTableValue(temp0, temp1, PlayerObject_KnuxSuperAltPal)
+	SetPaletteEntry(1, 26, temp0)
+	temp1++
+	GetTableValue(temp0, temp1, PlayerObject_KnuxSuperPal)
+	SetPaletteEntry(0, 27, temp0)
+	GetTableValue(temp0, temp1, PlayerObject_KnuxSuperAltPal)
+	SetPaletteEntry(1, 27, temp0)
+	temp1++
+	GetTableValue(temp0, temp1, PlayerObject_KnuxSuperPal)
+	SetPaletteEntry(0, 28, temp0)
+	GetTableValue(temp0, temp1, PlayerObject_KnuxSuperAltPal)
+	SetPaletteEntry(1, 28, temp0)
+end function
+
+
 
 function PlayerObject_SwitchPhysicsState
 	switch stage.playerListPos
@@ -594,6 +689,9 @@ function PlayerObject_SwitchPhysicsState
 		break
 	case 2
 		temp0 = PlayerObject_KnuxPhysicsTable
+		break
+	case 5
+		temp0 = PlayerObject_AmyPhysicsTable
 		break
 	end switch
 	temp1 = 0
@@ -653,6 +751,9 @@ function PlayerObject_ProcessSuperState
 			break
 		case 2
 			CallFunction(PlayerObject_ProcessSuperPalK)
+			break
+		case 5
+			CallFunction(PlayerObject_ProcessSuperPalA)
 			break
 		end switch
 	end if
@@ -731,6 +832,10 @@ function PlayerObject_CheckHit
 	temp1 |= checkResult
 	CheckEqual(object[currentPlayer].animation, ANI_FLY_LIFT_TIRED)
 	temp1 |= checkResult
+		CheckEqual(object[currentPlayer].animation, 48)
+		temp0 |= checkResult
+		CheckEqual(object[currentPlayer].animation, 49)
+		temp0 |= checkResult
 	if temp1 == 1
 		CheckGreater(object[currentPlayer].ypos, object.ypos)
 		temp0 |= checkResult
@@ -787,6 +892,10 @@ function PlayerObject_BadnikBreak
 	temp1 |= checkResult
 	CheckEqual(object[currentPlayer].animation, ANI_FLY_LIFT_TIRED)
 	temp1 |= checkResult
+		CheckEqual(object[currentPlayer].animation, 48)
+		temp0 |= checkResult
+		CheckEqual(object[currentPlayer].animation, 49)
+		temp0 |= checkResult
 	if temp1 == 1
 		CheckGreater(object[currentPlayer].ypos, object.ypos)
 		temp0 |= checkResult
@@ -957,6 +1066,10 @@ function PlayerObject_ProjectileHit
 	temp1 |= checkResult
 	CheckEqual(object[currentPlayer].animation, ANI_FLY_LIFT_TIRED)
 	temp1 |= checkResult
+		CheckEqual(object[currentPlayer].animation, 48)
+		temp1 |= checkResult
+		CheckEqual(object[currentPlayer].animation, 49)
+		temp1 |= checkResult
 	if temp1 == 1
 		CheckGreater(object[currentPlayer].ypos, object.ypos)
 		temp2 |= checkResult
@@ -1196,9 +1309,11 @@ function PlayerObject_ProcessPlayer
 	end if
 	if object.state != PlayerObject_HandleTailsFlight
 		if object.value26 != 0
-			StopSfx(SfxName[Flying])
-			StopSfx(SfxName[Tired])
-			object.value26 = 0
+			if object.state != PlayerObject_HandleHammerSpin
+				StopSfx(SfxName[Flying])
+				StopSfx(SfxName[Tired])
+				object.value26 = 0
+			end if
 		end if
 	end if
 end function
@@ -1629,6 +1744,13 @@ function PlayerObject_StartJump
 		ObjectTileCollision(CSIDE_FLOOR, 0, temp0, object.collisionPlane)
 	end if
 	if temp1 == 0
+		if object.propertyValue == 5
+			if object.up == 1
+				if saved.AmyMoveset == 0
+					temp2 = 1
+				end if
+			end if
+		end if
 		object.controlLock = 0
 		object.gravity = GRAVITY_AIR
 		temp1 = object.value27
@@ -1651,18 +1773,38 @@ function PlayerObject_StartJump
 		object.angle = 0
 		object.collisionMode = CMODE_FLOOR
 		object.value1 = 1
-		CallFunction(PlayerObject_RollAnimSpd)
-		if object.state == PlayerObject_HandleRolling
-			if saved.Jumplock == 1
-				object.state = PlayerObject_RollingJump
+
+		if temp2 == 1
+			if saved.AmyMoveset == 0
+				object.yvel += object.value28
+				object.animation = 48
+				PlaySfx(SfxName[Thud], 0)
+				object.value1 = 0
+				object.state = PlayerObject_HandleAir
+				object.value10 = 47
+			end if
+		else
+			object.animation = ANI_JUMPING
+			if object.propertyValue == 5
+				if saved.AmyMoveset == 1
+					object.animation = 11
+					object.value10 = 47
+				end if
+			end if
+
+			CallFunction(PlayerObject_RollAnimSpd)
+			if object.state == PlayerObject_HandleRolling
+				if saved.Jumplock == 1
+					object.state = PlayerObject_RollingJump
+				else
+					object.state = PlayerObject_HandleAir
+				end if
 			else
 				object.state = PlayerObject_HandleAir
 			end if
-		else
-			object.state = PlayerObject_HandleAir
+			PlaySfx(SfxName[Jump], 0)
+			object.value34 = 1
 		end if
-		PlaySfx(SfxName[Jump], 0)
-		object.value34 = 1
 		object.value35 = 1
 	end if
 end function
@@ -2067,6 +2209,178 @@ function PlayerObject_DropDash
 	end if
 end function
 
+function PlayerObject_StartHop
+		PlaySfx(SfxName[Flying], 0)
+		object.controlLock = 0
+		object.gravity = GRAVITY_AIR
+		
+		if object.direction == FLIP_X
+			object.xvel -= 0x50000
+		else
+			object.xvel += 0x50000
+		end if	
+		
+		object.yvel = -0x30000
+		
+		object.speed = object.xvel
+		object.scrollTracking = 1
+		object.animation = 49
+		object.angle = 0
+		object.collisionMode = CMODE_FLOOR
+		object.value1 = 1
+		object.state = PlayerObject_HandleAir
+
+		object.value34 = 1
+		object.value35 = 1
+		object.value35 = 2
+end function
+
+function PlayerObject_StartSecondJump	
+	temp1 = 0
+	if object.collisionMode == CMODE_FLOOR
+		temp6 = object.xpos
+		temp7 = object.ypos
+		temp0 = object.collisionTop
+		temp0 -= 2
+		ObjectTileCollision(CSIDE_ROOF, 0, temp0, object.collisionPlane)
+		temp1 = checkResult
+		object.xpos = temp6
+		object.ypos = temp7
+		temp0 = object.collisionBottom
+		if object.animation != ANI_JUMPING
+			if stage.playerListPos != 5
+				object.iypos -= object.value30
+				temp0 += object.value30
+			end if
+		end if
+		ObjectTileCollision(CSIDE_FLOOR, 0, temp0, object.collisionPlane)
+	end if
+	if temp1 == 0
+		temp2 = 1
+		object.controlLock = 0
+		object.gravity = GRAVITY_AIR
+		temp1 = object.value27
+		temp1 += object.value25
+		Sin256(object.xvel, object.angle)
+		object.xvel *= temp1
+		Cos256(temp0, object.angle)
+		temp0 *= object.speed
+		object.xvel += temp0
+		object.xvel >>= 8
+		Sin256(object.yvel, object.angle)
+		object.yvel *= object.speed
+		Cos256(temp0, object.angle)
+		temp0 *= temp1
+		object.yvel -= temp0
+		object.yvel >>= 8
+		object.speed = object.xvel
+		object.scrollTracking = 1
+		object.angle = 0
+		object.collisionMode = CMODE_FLOOR
+		object.value1 = 1
+		if temp2 == 1
+			object.animation = 48
+			PlaySfx(SfxName[Thud], 0)
+			object.value1 = 0
+			object.state = PlayerObject_HandleAir
+			object.value10 = 52
+		end if
+		object.value34 = 1
+		object.value35 = 2
+	end if
+end function
+
+function PlayerObject_StartHammerSpin
+	if object.value35 == 1
+		if inputPress.buttonY == 1
+			CheckEqual(specialStage.emeralds, 127)
+			temp0 = checkResult
+			CheckGreater(object.value0, 49)
+			temp0 &= checkResult
+			CheckNotEqual(PlayerObject_SuperState, 1)
+			temp0 &= checkResult
+			CheckNotEqual(object[30].type, TypeName[Act Finish])
+			temp0 &= checkResult
+			CheckEqual (object.value46, 0)
+			temp0 &= checkResult
+			if temp0 == 1
+				currentPlayer = object.entityPos
+				CallFunction(PlayerObject_SuperTransform)
+			end if
+		end if
+
+		if object.jumpPress == 1
+			if saved.AmyMoveset == 0
+				object.value1 = 0
+				object.state = PlayerObject_HandleHammerSpin
+				object.value26 = 0x800
+				object.yvel = 0
+				if object.value25 == 0x3800
+					PlaySfx(SfxName[Flying], 1)
+				end if
+				object.animation = 49
+			end if
+		end if
+	end if
+end function
+
+function PlayerObject_HandleHammerSpin
+	CallFunction(PlayerObject_AirAcceleration)
+	if object.gravity == GRAVITY_AIR
+		object.xvel = object.speed
+		if object.yvel < -0x10000
+			object.value26 = 0x800
+		else
+			if object.yvel < 1
+				if object.value2 < 60
+					object.value2++
+				else
+					object.value26 = 0x800
+				end if
+			end if
+		end if
+		object.yvel += object.value26
+		if object.ypos < 0x100000
+			if object.yvel < 0
+				object.yvel = 0
+			end if
+		end if
+		object.value1++
+		CheckLower(object.value1, 180)
+		temp0 = checkResult
+		CheckEqual(object.jumpHold, 1)
+		temp0 &= checkResult
+		if temp0 == 0
+			object.animation = 49
+			object.state = PlayerObject_HandleAir
+		end if
+	else
+		object.animation = ANI_WALKING
+		object.state = PlayerObject_HandleGround
+		CallFunction(PlayerObject_ResetOnFloor)
+	end if
+
+	//Fly Cancel
+
+	if saved.FlightCancel == 1
+		if options.attractMode == 0
+			if object.entityPos == 0
+				temp2 = inputPress.buttonA
+				temp2 |= inputPress.buttonB
+				temp2 |= inputPress.buttonC
+				temp2 &= inputDown.down
+				if temp2 == 1
+					object.state = PlayerObject_HandleAir
+					object.value35 = 0
+					object.animation = ANI_JUMPING
+					object.yvel = 1
+				end if
+			end if
+		end if
+	end if
+	//Fly Cancel
+end function
+
 function PlayerObject_StartTailsFlight
 	if object.value35 == 1
 		if inputPress.buttonY == 1
@@ -2269,6 +2583,7 @@ function PlayerObject_HandleGround
 					end if
 					break
 				case 1
+				case 5
 					if object.value1 < 240
 						object.animation = ANI_STOPPED
 						object.value1++
@@ -2356,7 +2671,16 @@ function PlayerObject_HandleGround
 			end if
 		end if
 		if object.jumpPress == 1
-			CallFunction(PlayerObject_StartJump)
+			CheckEqual(object.propertyValue, 5)
+			temp0 = checkResult
+			CheckEqual(saved.AmyMoveset, 1)
+			temp0 &= checkResult
+			temp0 &= object.down
+			if temp0 == 1
+				CallFunction(PlayerObject_StartHop)
+			else
+				CallFunction(PlayerObject_StartJump)
+			end if
 		else
 			if object.up == 1
 				if object.speed == 0
@@ -2391,25 +2715,31 @@ function PlayerObject_HandleGround
 				else
 					if object.left == 0
 						if object.right == 0
-							if object.speed > 0
-								if object.speed > 0x8800
-									object.state = PlayerObject_HandleRolling
-									object.animation = ANI_JUMPING
-									if object.prevAnimation != ANI_JUMPING
-										object.iypos -= object.value30
+							CheckEqual(object.propertyValue, 5)
+							temp0 = checkResult
+							CheckEqual(saved.AmyMoveset, 1)
+							temp0 &= checkResult
+							if temp0 == 0
+								if object.speed > 0
+									if object.speed > 0x8800
+										object.state = PlayerObject_HandleRolling
+										object.animation = ANI_JUMPING
+										if object.prevAnimation != ANI_JUMPING
+											object.iypos -= object.value30
+										end if
+										object.value2 = 0x400
+										PlaySfx(SfxName[Rolling], 0)
 									end if
-									object.value2 = 0x400
-									PlaySfx(SfxName[Rolling], 0)
-								end if
-							else
-								if object.speed < -0x8800
-									object.state = PlayerObject_HandleRolling
-									object.animation = ANI_JUMPING
-									if object.prevAnimation != ANI_JUMPING
-										object.iypos -= object.value30
+								else
+									if object.speed < -0x8800
+										object.state = PlayerObject_HandleRolling
+										object.animation = ANI_JUMPING
+										if object.prevAnimation != ANI_JUMPING
+											object.iypos -= object.value30
+										end if
+										object.value2 = 0x400
+										PlaySfx(SfxName[Rolling], 0)
 									end if
-									object.value2 = 0x400
-									PlaySfx(SfxName[Rolling], 0)
 								end if
 							end if
 						end if
@@ -2505,6 +2835,13 @@ function PlayerObject_HandleAir
 				end if
 			end if
 		end if
+		if object.animation == 48
+			if object.yvel >= 100
+				object.rotation = 0
+				object.angle = 0
+				object.animation = object.value10
+			end if
+		end if
 		if object.animation == ANI_HURT
 			if object.yvel >= 0
 				if object.value10 == ANI_STOPPED
@@ -2520,6 +2857,69 @@ function PlayerObject_HandleAir
 				end if
 			//end if
 		end if
+
+			if saved.AmyMoveset == 1
+				if stage.playerListPos == 5
+					CheckEqual(object.animation, 11)
+					temp0 = checkResult
+					CheckEqual(object.animation, 47)
+					temp0 |= checkResult
+					CheckEqual(object.animation, 52)
+					temp0 |= checkResult
+					CheckEqual(object.animation, 49)
+					temp0 |= checkResult
+					if temp0 == 1						
+						CheckEqual(object.up, 1)
+						temp1 = checkResult
+						switch object.value35
+							case 1
+								if inputPress.buttonY == 1
+									CheckEqual(specialStage.emeralds, 127)
+									temp0 = checkResult
+									CheckGreater(object.value0, 49)
+									temp0 &= checkResult
+									CheckNotEqual(PlayerObject_SuperState, 1)
+									temp0 &= checkResult
+									CheckNotEqual(object[30].type, TypeName[Act Finish])
+									temp0 &= checkResult
+									CheckEqual (object.value8, 0)
+									temp0 &= checkResult
+									
+									if temp0 == 1
+										currentPlayer = object.entityPos
+										CallFunction(PlayerObject_SuperTransform)
+									end if
+								end if
+								if object.jumpPress == 1
+									if temp1 == 1
+										CallFunction(PlayerObject_StartSecondJump)
+										object.value35 = 3
+									else
+										CallFunction(PlayerObject_StartHop)
+										object.value35 = 4
+									end if
+								end if	
+								break
+							case 3
+								if object.jumpPress == 1
+									if temp1 == 0
+										CallFunction(PlayerObject_StartHop)
+										object.value35 = 2
+									end if
+								end if
+								break
+							case 4
+								if object.jumpPress == 1
+									if temp1 == 1
+										CallFunction(PlayerObject_StartSecondJump)
+										object.value35 = 2
+									end if
+								end if
+								break
+						end switch
+					end if
+				end if
+			end if
 	else
 		if object.entityPos == 0
 			if object.value15 < 21
@@ -2750,6 +3150,7 @@ function PlayerObject_LookingUp
 						break
 					case 1
 					case 2
+					case 5
 						CallFunction(PlayerObject_StartJump)
 						break
 				end switch
@@ -4612,6 +5013,18 @@ end event
 
 function PlayerObject_Force45
 	if object.gravity == GRAVITY_AIR
+
+		CheckEqual(stage.playerListPos, 5)
+		temp0 = checkResult
+		CheckEqual(object.animation, 48)
+		temp0 &= checkResult
+		if temp0 == 1
+			if object.direction == 0
+				object.rotation += amy.spin.speed
+			else
+				object.rotation += amy.spin.speed //should be minus but doesnt work in s2a? weird
+			end if
+		else		
 			if object.rotation < 256
 				if object.rotation > 3
 					object.rotation -= 4
@@ -4625,6 +5038,7 @@ function PlayerObject_Force45
 					object.rotation = 0
 				end if
 			end if
+		end if
 	end if
 	temp0 = object.rotation
 	if object.rotation >= 0x100
@@ -4708,18 +5122,31 @@ function PlayerObject_ManiaRotate
 					end if
 				end if
 			end if
-		else	
-			if object.value24 < 256
-				if object.value24 > 3
-					object.value24 -= 4
+		else
+			CheckEqual(stage.playerListPos, 5)
+			temp0 = checkResult
+			CheckEqual(object.animation, 48)
+			temp0 &= checkResult
+			if temp0 == 1
+				if object.direction == 0
+					object.value24 += amy.spin.speed
 				else
-					object.value24 = 0
+					object.value24 += amy.spin.speed //should be minus but doesnt work in s2a? weird
 				end if
-			else
-				if object.value24 < 509
-					object.value24 += 4
+				temp0 = object.value24
+			else		
+				if object.value24 < 256
+					if object.value24 > 3
+						object.value24 -= 4
+					else
+						object.value24 = 0
+					end if
 				else
-					object.value24 = 0
+					if object.value24 < 509
+						object.value24 += 4
+					else
+						object.value24 = 0
+					end if
 				end if
 			end if
 		end if
@@ -4821,7 +5248,24 @@ function PlayerObject_MoveAnimate
 				else
 					object.animation = ANI_RUNNING
 				end if
-				break							
+				break	
+			case 5 //Amy
+				if temp0 > 0x9FFFF
+					switch saved.AmyMaxDash
+						case 0
+							object.animation = ANI_RUNNING
+							break
+						case 1
+							object.animation = ANI_PEELOUT
+							break
+						case 2
+							object.animation = 44
+							break
+					end switch
+				else
+					object.animation = ANI_RUNNING
+				end if
+				break					
 		end switch
 		CallFunction(PlayerObject_RunAnimSpd)
 	end if
@@ -4829,6 +5273,7 @@ end function
 
 
 event ObjectStartup
+	saved.AmyMoveset = 1
 	playerCount = 0
 	foreach (TypeName[Player Object], arrayPos0, ALL_ENTITIES)
 		screen.cameraEnabled = 1
@@ -4877,7 +5322,13 @@ event ObjectStartup
 				object[0].value33 = PlayerObject_StartSpindash
 			end if
     			break
-		end switch		
+		end switch
+
+		if stage.playerListPos == 5
+			if saved.amymoveset == 1
+				object[0].value33 = PlayerObject_StartHop
+			end if
+		end if		
 		object[0].value38 = HITBOX_AUTO
 		object[0].value39 = HITBOX_AUTO
 		object[0].value40 = HITBOX_AUTO
@@ -4940,6 +5391,14 @@ event ObjectStartup
 			//if options.saveSlot > 0
 			//	stage.player2Enabled = 0
 			//end if
+			break
+		case 5
+			LoadAnimation("Amy.ani")
+			CallFunction(PlayerObject_ProcessSuperPalA)
+			object[0].propertyValue = 5
+			object[0].value30 = -5
+			object[0].value32 = PlayerObject_StartHammerSpin
+			stage.player2Enabled = 0
 			break
 		end switch
 		
