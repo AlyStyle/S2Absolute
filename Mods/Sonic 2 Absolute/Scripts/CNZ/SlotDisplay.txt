@@ -125,6 +125,17 @@ event ObjectStartup
 					temp3 = 6
 				end if
 			end if
+			if stage.playerListPos == 5
+				if temp1 == 0
+					temp1 = 7
+				end if
+				if temp2 == 0
+					temp2 = 7
+				end if
+				if temp3 == 0
+					temp3 = 7
+				end if
+			end if
 			temp1 <<= 5
 			temp1 += 256
 			temp2 <<= 5
