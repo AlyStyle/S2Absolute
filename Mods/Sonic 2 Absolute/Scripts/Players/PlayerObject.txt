@@ -5273,7 +5273,6 @@ end function
 
 
 event ObjectStartup
-	saved.AmyMoveset = 1
 	playerCount = 0
 	foreach (TypeName[Player Object], arrayPos0, ALL_ENTITIES)
 		screen.cameraEnabled = 1
@@ -5287,6 +5286,10 @@ event ObjectStartup
 				break
 			case 4
 				stage.playerListPos = 2
+				stage.player2Enabled = 1
+				break
+			case 6
+				stage.playerListPos = 5
 				stage.player2Enabled = 1
 				break
 			case 100
@@ -5398,7 +5401,6 @@ event ObjectStartup
 			object[0].propertyValue = 5
 			object[0].value30 = -5
 			object[0].value32 = PlayerObject_StartHammerSpin
-			stage.player2Enabled = 0
 			break
 		end switch
 		

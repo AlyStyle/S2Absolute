@@ -107,6 +107,10 @@ event ObjectMain
 			temp0 |= checkResult
 			CheckEqual(object[currentPlayer].animation, ANI_GLIDING_STOP)
 			temp0 |= checkResult
+			CheckEqual(object[currentPlayer].animation, 48)
+			temp0 |= checkResult
+			CheckEqual(object[currentPlayer].animation, 49)
+			temp0 |= checkResult
 			if temp0 == 1
 				if object[currentPlayer].value16 == 0
 					BoxCollisionTest(C_TOUCH, object.entityPos, -16, -14, 16, 16, currentPlayer, object[currentPlayer].value40, object[currentPlayer].value38, object[currentPlayer].value41, object[currentPlayer].value39)
