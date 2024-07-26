@@ -2283,7 +2283,7 @@ function PlayerObject_StartSecondJump
 			PlaySfx(SfxName[Thud], 0)
 			object.value1 = 0
 			object.state = PlayerObject_HandleAir
-			object.value10 = 52
+			object.value10 = 53
 		end if
 		object.value34 = 1
 		object.value35 = 2
@@ -2864,7 +2864,7 @@ function PlayerObject_HandleAir
 					temp0 = checkResult
 					CheckEqual(object.animation, 47)
 					temp0 |= checkResult
-					CheckEqual(object.animation, 52)
+					CheckEqual(object.animation, 53)
 					temp0 |= checkResult
 					CheckEqual(object.animation, 49)
 					temp0 |= checkResult
