@@ -47,6 +47,7 @@ event ObjectMain
 			break
 		case 2
 		case 4
+		case 5
 			temp1 = 0xA80000
 			break
 		end switch

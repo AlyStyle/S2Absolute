@@ -34,7 +34,13 @@ event ObjectMain
 			if checkResult == 1
 				object[currentPlayer].value18 = 4
 			end if
-			if object[currentPlayer].animation == ANI_JUMPING
+			CheckEqual(object[currentPlayer].animation, ANI_JUMPING)
+			temp0 = checkResult
+			CheckEqual(object[currentPlayer].animation, 48)
+			temp0 |= checkResult
+			CheckEqual(object[currentPlayer].animation, 49)
+			temp0 |= checkResult
+			if temp0 == 1
 				BoxCollisionTest(C_BOX, object.entityPos, -16, -16, 16, 16, currentPlayer, HITBOX_AUTO, HITBOX_AUTO, HITBOX_AUTO, HITBOX_AUTO)
 				if checkResult == 1
 					object[currentPlayer].yvel = -0x30000
