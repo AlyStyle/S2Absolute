@@ -1,0 +1,1113 @@
+// ----------------------------------
+// RSDK Project: Sonic 1/Sonic 2
+// Script Description: Sonic Team Object
+// Script Author: Christan Whitehead/Simon Thomley
+// Unpacked by Rubberduckycooly's script unpacker
+// ----------------------------------
+
+//-------Aliases-------//
+private value draw.new.save = 0;
+private value draw.character = 0;
+private value draw.lives = 0;
+private value draw.zone = 0;
+private value draw.act = 0;
+private value draw.emeralds = 0;
+private value draw.continues = 0;
+
+private value math.red = 0;
+private value math.green = 0;
+private value math.blue = 0;
+private value math.grey = 1;
+
+private alias 299 : weight.red
+private alias 587 : weight.green
+private alias 114 : weight.blue
+
+
+private alias object.value0 : menu.mainsel
+private alias object.value1 : menu.page
+private alias object.value2 : menu.page1.xoffset
+private alias object.value3 : menu.page1.xtarget
+private alias object.value4 : menu.fade
+private alias object.value5 : menu.loadcall
+private alias object.value6 : menu.zigzagscroll
+private alias object.value7 : menu.options.highlight
+private alias object.value8 : menu.zigzag.yoffset
+private alias object.value9 : menu.zigzag.ytarget
+private alias object.value10 : menu.drawMode
+
+private alias object.value11 : menu.sub.ymin
+private alias object.value12 : menu.sub.ymax
+private alias object.value13 : menu.sub.yoffset
+private alias object.value14 : menu.sub.ytarget
+
+private alias object.value15 : save.slot
+private alias object.value16 : save.substate
+private alias object.value17 : save.charselect
+private alias object.value18 : save.complete.stage
+
+private alias object.value19 : achieve.highlight
+private alias object.value20 : achieve.compcount
+
+private alias object.value22 : menu.extras.highlight
+
+private alias object.value23 : menu.timer
+
+private alias object.value24 : slots.milliseconds
+private alias object.value25 : slots.seconds
+private alias object.value26 : slots.minutes
+
+private alias object.value27 : hold.time
+
+private alias object.value28 : delete.check
+private alias object.value29 : delete.ticker
+
+private alias 10 : menu.zigzag.yspeed
+private alias 10 : menu.sub.yspeed
+private alias 15 : options.gap
+private alias 50 : save.gap
+private alias 66 : achieve.gap
+private alias 50 : save.opacity
+
+private alias 11 : achieve.count
+private alias 2 : extras.count
+
+public alias saveRAM[257] : saved.spindash
+
+
+public alias saveRAM[260] : saved.spikeBehavior
+public alias saveRAM[261] : saved.shieldType
+public alias saveRAM[262] : saved.Title
+public alias saveRAM[263] : saved.Jumplock
+public alias saveRAM[264] : saved.Supermusic
+public alias saveRAM[265] : saved.Dropdash
+public alias saveRAM[266] : saved.Instashield
+public alias saveRAM[267] : saved.Peelout
+public alias saveRAM[268] : saved.FlightCancel
+public alias saveRAM[269] : saved.SonicMaxDash
+public alias saveRAM[270] : saved.Speen
+public alias saveRAM[271] : saved.Supercancel
+public alias saveRAM[272] : saved.Drowning
+public alias saveRAM[273] : saved.Timer
+public alias saveRAM[274] : saved.region
+public alias saveRAM[275] : saved.elemental
+public alias saveRAM[276] : saved.rotate
+public alias saveRAM[277] : saved.invincibilityType
+public alias saveRAM[278] : saved.speedCap
+public alias saveRAM[279] : saved.airSpeedCap
+public alias saveRAM[280] : saved.GoGoPlus
+public alias saveRAM[281] : saved.lives
+public alias saveRAM[282] : saved.bubble
+public alias saveRAM[283] : saved.timeLimit
+public alias saveRAM[285] : saved.randomMonitor
+public alias saveRAM[286] : saved.language
+
+public alias saveRAM[294] : saved.graphics
+public alias saveRAM[295] : saved.mobile
+public alias saveRAM[296] : saved.transmobile
+public alias saveRAM[297] : saved.TailsMaxDash
+public alias saveRAM[298] : saved.KnuxMaxDash
+public alias saveRAM[300] : saved.SuperMaxDash
+
+
+
+reserve function Menu.LoadOut
+reserve function Menu.firstcontrol
+reserve function Menu.LoadIn
+reserve function Plane.Snapback
+reserve function CloudDebug
+reserve function ModesControl
+reserve function ExtrasControl
+reserve function SaveControl
+reserve function AchieveControl
+reserve function LoadforDraw
+reserve function YOffsetControl
+reserve function ExtrasDraw
+reserve function OptionsDraw
+reserve function OptionsDrawSetup
+reserve function SaveDraw
+reserve function SaveEmeralds
+reserve function AchieveDraw
+reserve function AchieveDescribe
+reserve function DeleteProcessSetup
+reserve function ResetPal
+reserve function OtherScriptActive
+
+reserve function display.menu
+reserve function gameplay.menu
+reserve function abilities.menu
+reserve function visuals.menu
+reserve function sound.menu
+reserve function datamang.menu
+
+reserve function display.draw
+reserve function gameplay.draw
+reserve function abilities.draw
+reserve function visuals.draw
+reserve function sound.draw
+reserve function datamang.draw
+
+reserve function menu.holdmovement
+reserve function PlayRingSound
+reserve function BlackandWhite
+
+reserve function delete.save
+reserve function delete.ta
+reserve function delete.arcade
+reserve function delete.golf
+reserve function delete.extra
+reserve function delete.achieve
+reserve function delete.secret
+reserve function option.restore
+
+//Static Values
+private value saved.fullscreen = 0;
+private value saved.scale = 0;
+private value saved.vsync = 0;
+private value saved.scalemode = 0;
+private value saved.fps = 0;
+
+
+
+
+
+//-------Tables--------//
+private table ZoneCompleteLoad
+	0, 2, 4, 6, 8, 10, 12, 14, 17, 18, 19, 20
+end table
+
+private table ZoneCompleteDraw
+	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+end table
+
+private table Palette_Reset
+	0x2020A0, 0x2040C0, 0x4040E0, 0x6060E0
+	0x800000, 0xE08000, 0xE0A000, 0xA06040
+	0x600020, 0xC00020, 0xE04060
+end table
+
+function Save.LoadOut
+	if menu.fade < 320
+		menu.fade += 16
+		music.volume -= 2
+	else
+		StopMusic()
+		switch menu.loadcall
+			case 1
+				CallNativeFunction(OpenModMenu)
+				break
+			case 2
+				CallNativeFunction(ExitGame)
+				break
+			default
+				LoadStage()
+				break
+		end switch
+	end if
+	SetScreenFade(0, 0, 0, menu.fade)
+end function
+
+event ObjectMain				
+	CallFunction(object.state)
+end event
+
+function SaveControl	
+	if menu.sub.ytarget < menu.sub.ymin
+		menu.sub.ytarget = menu.sub.ymin
+	else
+		if menu.sub.ytarget > menu.sub.ymax
+			menu.sub.ytarget = menu.sub.ymax
+		end if
+	end if
+	
+	switch save.substate
+		case 0 //Normal Save Control
+			CheckEqual(inputPress.buttonA, 1)
+			temp0 = checkResult
+			CheckEqual(inputPress.start, 1)
+			temp0 |= checkResult
+			if temp0 == 1
+				CallFunction(PlayRingSound)
+					if save.slot == 0
+						save.substate = 4
+					else
+						arrayPos2 = save.slot
+						arrayPos2--
+						arrayPos2 <<= 3
+						arrayPos2 += 1000
+						CallFunction(LoadforDraw)
+						if draw.new.save == 1
+							save.substate = 5
+						else
+							if draw.zone == 12
+								save.substate = 6
+							else
+								save.substate = 7
+							end if
+						end if
+						
+					end if
+			end if
+			if inputPress.up == 1
+				PlaySfx(SfxName[Score Add], 0)
+				save.slot--
+				while save.slot < 0
+					save.slot += 11
+				loop
+			end if
+			
+			if inputPress.down == 1
+				PlaySfx(SfxName[Score Add], 0)
+				save.slot++
+				save.slot %= 11
+			end if
+			
+			if inputPress.buttonB == 1
+				object[9].priority = PRIORITY_ACTIVE
+				object[9].value14 = 0
+				object[9].value9 = 0
+				object[9].state = Menu.firstcontrol
+			end if
+			
+			if inputPress.buttonY == 1				
+					arrayPos2 = save.slot
+					arrayPos2--
+					arrayPos2 <<= 3
+					arrayPos2 += 1000
+					CallFunction(LoadforDraw)
+					
+				CheckEqual(save.slot, 0)
+				temp2 = checkResult
+				CheckEqual(draw.new.save, 1)
+				temp2 |= checkResult
+				if temp2 == 1
+					PlaySfx(SfxName[Fail], 0)
+				else
+					PlaySfx(SfxName[Skidding], 0)
+					save.substate = 2
+				end if
+			end if			
+			if inputPress.right == 1
+					arrayPos2 = save.slot
+					arrayPos2--
+					arrayPos2 <<= 3
+					arrayPos2 += 1000
+					CallFunction(LoadforDraw)
+					
+				CheckEqual(save.slot, 0)
+				temp2 = checkResult
+				CheckEqual(draw.new.save, 1)
+				temp2 |= checkResult
+				if temp2 == 1
+					PlaySfx(SfxName[Fail], 0)
+				else
+					PlaySfx(SfxName[Score Add], 0)
+					save.substate = 1
+				end if
+			end if
+			break
+		case 1 //Delete Highlighted
+			CheckEqual(inputPress.buttonB, 1)
+			temp0 = checkResult
+			CheckEqual(inputPress.left, 1)
+			temp0 |= checkResult
+			if temp0 == 1
+				PlaySfx(SfxName[Score Add], 0)
+				save.substate = 0
+			else
+				CheckEqual(inputPress.buttonA, 1)
+				temp0 = checkResult
+				CheckEqual(inputPress.start, 1)
+				temp0 |= checkResult
+				if temp0 == 1
+					PlaySfx(SfxName[Skidding], 0)
+					save.substate = 2
+				end if				
+			end if
+			break
+		case 2 //Deleted Confirm No
+			CheckEqual(inputPress.right, 1)
+			temp0 = checkResult
+			CheckEqual(inputPress.left, 1)
+			temp0 |= checkResult
+			if temp0 == 1
+				PlaySfx(SfxName[Score Add], 0)
+				save.substate = 3
+			else				
+				CheckEqual(inputPress.buttonA, 1)
+				temp0 = checkResult
+				CheckEqual(inputPress.start, 1)
+				temp0 |= checkResult
+				CheckEqual(inputPress.buttonB, 1)
+				temp0 |= checkResult
+				if temp0 == 1
+					PlaySfx(SfxName[Star Post], 0)
+					save.substate = 0
+				end if
+			end if
+			break			
+		case 3 //Deleted Confirm Yes
+			CheckEqual(inputPress.right, 1)
+			temp0 = checkResult
+			CheckEqual(inputPress.left, 1)
+			temp0 |= checkResult
+			if temp0 == 1
+				PlaySfx(SfxName[Score Add], 0)
+				save.substate = 2
+			else				
+				if inputPress.buttonB == 1
+					PlaySfx(SfxName[Star Post], 0)
+					save.substate = 0				
+				else
+					CheckEqual(inputPress.buttonA, 1)
+					temp0 = checkResult
+					CheckEqual(inputPress.start, 1)
+					temp0 |= checkResult
+					if temp0 == 1
+						PlaySfx(SfxName[Lose Rings], 0)
+						save.substate = 0						
+							arrayPos1 = save.Slot
+							arrayPos1--
+							arrayPos1 <<= 3
+							arrayPos1 += 1000
+							saveRAM[arrayPos1] = 0			//Character
+							arrayPos1++
+							saveRAM[arrayPos1] = 0			//Lives
+							arrayPos1++
+							saveRAM[arrayPos1] = 0			//Score
+							arrayPos1++
+							saveRAM[arrayPos1] = 0			//Score Extra Life
+							arrayPos1++
+							saveRAM[arrayPos1] = 0			//ZoneID
+							arrayPos1++
+							saveRAM[arrayPos1] = 0			//Emeralds
+							arrayPos1++
+							saveRAM[arrayPos1] = 0			//SpecialZoneID
+							arrayPos1++
+							saveRAM[arrayPos1] = 0			//Continue
+							WriteSaveRAM()						
+					end if
+				end if
+			end if
+			break
+		case 4 //No save Character
+			if inputPress.buttonB == 1
+				save.substate = 0				
+			else
+				CheckEqual(inputPress.left, 1)
+				temp0 = checkResult
+				CheckEqual(inputPress.up, 1)
+				temp0 |= checkResult
+				if temp0 == 1
+					PlaySfx(SfxName[Score Add], 0)
+					save.charselect--
+					while save.charselect < 0
+						save.charselect += 5
+					loop
+				end if
+				
+				CheckEqual(inputPress.right, 1)
+				temp0 = checkResult
+				CheckEqual(inputPress.down, 1)
+				temp0 |= checkResult
+				if temp0 == 1
+					PlaySfx(SfxName[Score Add], 0)
+					save.charselect++
+					save.charselect %= 5
+				end if
+				
+				CheckEqual(inputPress.buttonA, 1)
+				temp0 = checkResult
+				CheckEqual(inputPress.start, 1)
+				temp0 |= checkResult
+				if temp0 == 1
+					options.gameMode = 0
+					options.attractMode = 0
+					starPostID = 0
+
+					stage.playerListPos = save.charselect
+					player.lives = 3
+					player.continues = 0
+					player.score = 0
+					player.scoreBonus = 50000
+					stage.activeList = REGULAR_STAGE
+					stage.listPos = 0
+					specialStage.emeralds = 0
+					specialStage.listPos = 0
+					
+					if stage.playerListPos < 3
+						stage.player2Enabled = 0
+					end if				
+					menu.loadcall = 0
+					object.state = Save.LoadOut
+				end if
+			end if
+			break
+		case 5 // New Save Character
+			if inputPress.buttonB == 1
+				save.substate = 0				
+			else
+				CheckEqual(inputPress.left, 1)
+				temp0 = checkResult
+				CheckEqual(inputPress.up, 1)
+				temp0 |= checkResult
+				if temp0 == 1
+					PlaySfx(SfxName[Score Add], 0)
+					save.charselect--
+					while save.charselect < 0
+						save.charselect += 5
+					loop
+				end if
+				
+				CheckEqual(inputPress.right, 1)
+				temp0 = checkResult
+				CheckEqual(inputPress.down, 1)
+				temp0 |= checkResult
+				if temp0 == 1
+					PlaySfx(SfxName[Score Add], 0)
+					save.charselect++
+					save.charselect %= 5
+				end if
+				
+				CheckEqual(inputPress.buttonA, 1)
+				temp0 = checkResult
+				CheckEqual(inputPress.start, 1)
+				temp0 |= checkResult
+				if temp0 == 1
+					arrayPos1 = save.Slot
+					arrayPos1--
+					arrayPos1 <<= 3
+					arrayPos1 += 1000
+					saveRAM[arrayPos1] = save.charselect	//Character
+					arrayPos1++
+					saveRAM[arrayPos1] = 3			//Lives
+					arrayPos1++
+					saveRAM[arrayPos1] = 0			//Score
+					arrayPos1++
+					saveRAM[arrayPos1] = 50000		//Score Extra Life
+					arrayPos1++
+					saveRAM[arrayPos1] = 1			//ZoneID
+					arrayPos1++
+					saveRAM[arrayPos1] = 0			//Emeralds
+					arrayPos1++
+					saveRAM[arrayPos1] = 0			//SpecialZoneID
+					arrayPos1++
+					saveRAM[arrayPos1] = 0			//Continues
+					WriteSaveRAM()
+					save.substate = 7
+				end if
+			end if
+			break
+		case 6 // Complete Save Stage
+			temp0 = inputPress.left
+			temp0 |= inputPress.up
+			if temp0 == 1
+				PlaySfx(SfxName[Score Add], 0)
+				save.complete.stage--
+				if save.complete.stage == 6
+				end if
+				while save.complete.stage < 0
+					save.complete.stage += 11
+				loop
+			end if
+			temp0 = inputPress.right
+			temp0 |= inputPress.down
+			if temp0 == 1
+				PlaySfx(SfxName[Score Add], 0)
+				save.complete.stage++
+				if save.complete.stage == 6
+				end if
+				save.complete.stage %= 11
+			end if
+			if inputPress.buttonB == 1
+				save.substate = 0
+				save.complete.stage = 0
+			end if
+			temp0 = inputPress.buttonA
+			temp0 |= inputPress.start
+			if temp0 == 1
+				CallFunction(PlayRingSound)
+				options.gameMode = 1
+				options.saveSlot = save.slot
+				options.saveSlot--
+				options.attractMode = 0
+				starPostID = 0
+
+				arrayPos1 = options.saveSlot
+				arrayPos1 <<= 3
+				arrayPos1 += 1000
+				stage.playerListPos = saveRAM[arrayPos1]
+				arrayPos1++
+				player.lives = saveRAM[arrayPos1]
+				arrayPos1++
+				player.score = 0
+				arrayPos1++
+				player.scoreBonus = 50000
+				arrayPos1++
+
+				stage.activeList = REGULAR_STAGE
+				GetTableValue(stage.listPos, save.complete.stage, ZoneCompleteLoad)
+					
+				arrayPos1++
+				specialStage.emeralds = saveRAM[arrayPos1]
+				arrayPos1++
+				specialStage.listPos = saveRAM[arrayPos1]
+				arrayPos1++
+				player.continues = saveRAM[arrayPos1]
+				
+				if stage.playerListPos < 3
+					stage.player2Enabled = 0
+				end if				
+				menu.loadcall = 0
+				object.state = Save.LoadOut
+			end if
+			break
+		case 7 //Load Game
+				CallFunction(PlayRingSound)
+				options.gameMode = 1
+				options.saveSlot = save.slot
+				options.saveSlot--
+				options.attractMode = 0
+				starPostID = 0
+
+				arrayPos1 = options.saveSlot
+				arrayPos1 <<= 3
+				arrayPos1 += 1000
+				stage.playerListPos = saveRAM[arrayPos1]
+				arrayPos1++
+				player.lives = saveRAM[arrayPos1]
+				arrayPos1++
+				player.score = saveRAM[arrayPos1]
+				arrayPos1++
+				player.scoreBonus = saveRAM[arrayPos1]
+				arrayPos1++
+
+				temp0 = saveRAM[arrayPos1]
+					stage.activeList = REGULAR_STAGE
+					temp0 -= 1
+					stage.listPos = temp0
+					
+				arrayPos1++
+				specialStage.emeralds = saveRAM[arrayPos1]
+				arrayPos1++
+				specialStage.listPos = saveRAM[arrayPos1]
+				arrayPos1++
+				player.continues = saveRAM[arrayPos1]
+				
+				if stage.playerListPos < 3
+					stage.player2Enabled = 0
+				end if				
+				menu.loadcall = 0
+				object.state = Save.LoadOut
+			break
+	end switch
+	
+	temp0 = save.slot
+	temp0 *= save.gap
+	menu.sub.ymax = temp0
+	temp0 -= 150
+	menu.sub.ymin = temp0
+end function
+
+event ObjectDraw
+	if object[9].value9 != 0
+		if menu.zigzag.yoffset != 240
+			 menu.zigzag.yoffset += 10
+		end if
+	else
+		if menu.zigzag.yoffset != 0
+			 menu.zigzag.yoffset -= 10
+		end if
+	end if
+	CallFunction(SaveDraw)
+end event
+
+function SaveEmeralds
+	SetActivePalette(1, 0, screen.ysize)
+	temp4 = 0
+	while temp4 < 7
+		if draw.new.save == 0
+			GetBit(temp5, draw.emeralds, temp4)
+		else
+			temp5 = 0
+		end if
+		temp6 = 64
+		temp6 += temp4
+		if temp5 == 0
+			temp6 += 7
+		end if
+		DrawSpriteScreenXY(temp6, screen.xcenter, temp0)	
+	temp4++
+	loop	
+	SetActivePalette(0, 0, screen.ysize)
+end function
+
+function LoadforDraw
+	draw.new.save = 0
+	arrayPos3 = arrayPos2
+	draw.character = saveRAM[arrayPos3]
+	arrayPos3++
+	draw.lives = saveRAM[arrayPos3]
+	arrayPos3 += 3
+	switch saveRAM[arrayPos3]
+		case 1
+		case 2
+			draw.zone = 0
+			break
+		case 3
+		case 4
+			draw.zone = 1
+			break
+		case 5
+		case 6
+			draw.zone = 2
+			break
+		case 7
+		case 8
+			draw.zone = 3
+			break
+		case 9
+		case 10
+			draw.zone = 4
+			break
+		case 11
+		case 12
+			draw.zone = 5
+			break
+		case 13
+		case 14
+			draw.zone = 6
+			break
+		case 15
+		case 16
+		case 17
+			draw.zone = 7
+			break
+		case 18
+			draw.zone = 8
+			break
+		case 19
+			draw.zone = 9
+			break
+		case 20
+			draw.zone = 10
+			break
+		case 21
+			draw.zone = 11
+			break
+		case 22
+			draw.zone = 12
+			break
+	end switch	
+	
+	switch saveRAM[arrayPos3]
+		case 1
+		case 3
+		case 5
+		case 7
+		case 9
+		case 11
+		case 13
+		case 15
+			draw.act = 0
+			break
+		case 2
+		case 4
+		case 6
+		case 8
+		case 10
+		case 12
+		case 14
+		case 16
+			draw.act = 1
+			break
+		case 17
+			draw.act = 2
+			break
+		case 18
+		case 19
+		case 20
+		case 21
+		case 22
+			draw.act = 3
+			break
+	end switch	
+	
+	arrayPos3++
+	draw.emeralds = saveRAM[arrayPos3]
+	arrayPos3++
+	arrayPos3++
+	draw.continues = saveRAM[arrayPos3]
+
+	
+	if draw.lives == 0
+		draw.new.save = 1
+	end if
+end function
+
+function SaveDraw
+	temp0 = screen.ycenter
+	temp0 += 125
+	temp0 -= menu.zigzag.yoffset
+	temp0 <<= 1
+	
+	temp0 -= menu.sub.yoffset
+	
+	DrawSpriteScreenXY(111, screen.xcenter, temp0)
+	temp0 += options.gap
+	temp0 += options.gap
+	
+	temp1 = 0
+		while temp1 < 11 //(draw 11 slots) 
+		if temp1 == 0 //no save
+			if temp1 == save.slot
+				SetActivePalette(1, 0, screen.ysize)
+				DrawSpriteScreenXY(2, screen.xcenter, temp0)				
+				SetActivePalette(0, 0, screen.ysize)
+				temp2 = screen.xcenter
+				temp2 -= 140
+				DrawRect(temp2, temp0, 280, 42, 0, 0, 0, save.opacity)
+				switch save.substate
+					case 4
+						temp2 = save.charselect
+						temp2 += 42
+						DrawSpriteScreenXY(temp2, screen.xcenter, temp0)
+						break
+					default
+						DrawSpriteScreenXY(47, screen.xcenter, temp0)
+						break
+				end switch
+				DrawSpriteScreenXY(108, screen.xcenter, temp0)
+			else			
+				DrawSpriteScreenXY(47, screen.xcenter, temp0)
+				DrawSpriteScreenXY(17, screen.xcenter, temp0)
+			end if
+			DrawSpriteScreenXY(0, screen.xcenter, temp0)
+		else
+			arrayPos2 = temp1
+			arrayPos2--
+			arrayPos2 <<= 3
+			arrayPos2 += 1000
+			CallFunction(LoadforDraw)
+			if draw.new.save == 0
+				if temp1 == save.slot
+					if save.substate == 6
+						if menu.timer < 30
+							DrawSpriteScreenXY(14, screen.xcenter, temp0)
+							DrawSpriteScreenXY(15, screen.xcenter, temp0)
+						end if
+						GetTableValue(draw.zone,save.complete.stage,ZoneCompleteDraw)
+						//draw.zone = save.complete.stage
+						draw.act = 3
+					end if
+					temp2 = draw.zone
+					temp2 += 3
+					SetActivePalette(1, 0, screen.ysize)
+					DrawSpriteScreenXY(temp2, screen.xcenter, temp0)						
+					SetActivePalette(0, 0, screen.ysize)
+					temp2 = screen.xcenter
+					temp2 -= 140
+					DrawRect(temp2, temp0, 280, 42, 0, 0, 0, save.opacity)
+					switch save.substate
+						case 2
+						case 3
+							DrawSpriteScreenXY(19, screen.xcenter, temp0)
+							DrawSpriteScreenXY(20, screen.xcenter, temp0)
+							DrawSpriteScreenXY(21, screen.xcenter, temp0)
+							temp2 = 25
+							temp2 -= save.substate							
+							DrawSpriteScreenXY(temp2, screen.xcenter, temp0)
+							break
+						default
+							temp2 = draw.zone
+							temp2 += 91
+							DrawSpriteScreenXY(temp2, screen.xcenter, temp0)		
+							if draw.zone != 12
+								DrawSpriteScreenXY(110, screen.xcenter, temp0)
+								temp2 = draw.act
+								temp2 += 104
+								DrawSpriteScreenXY(temp2, screen.xcenter, temp0)							
+							end if
+							if saved.lives == 0
+								DrawNumbers(81, screen.xcenter, temp0, draw.lives, 2, 10, 0)
+								temp2 = temp0
+								temp2 += 20
+								DrawNumbers(81, screen.xcenter, temp2, draw.continues, 2, 10, 0)
+							end if
+							break
+					end switch
+				else
+					temp2 = draw.zone
+					temp2 += 25
+					DrawSpriteScreenXY(temp2, screen.xcenter, temp0)		
+					if draw.zone != 12
+						DrawSpriteScreenXY(24, screen.xcenter, temp0)
+						temp2 = draw.act
+						temp2 += 38
+						DrawSpriteScreenXY(temp2, screen.xcenter, temp0)							
+					end if
+					if saved.lives == 0
+						DrawNumbers(54, screen.xcenter, temp0, draw.lives, 2, 10, 0)
+						temp2 = temp0
+						temp2 += 20
+						DrawNumbers(54, screen.xcenter, temp2, draw.continues, 2, 10, 0)
+					end if
+				end if
+				temp2 = draw.character
+				temp2 += 42
+				DrawSpriteScreenXY(temp2, screen.xcenter, temp0)
+				if saved.lives == 0
+					temp2 += 6				
+					DrawSpriteScreenXY(temp2, screen.xcenter, temp0)
+				end if
+				DrawSpriteScreenXY(1, screen.xcenter, temp0)
+			else
+				if temp1 == save.slot					
+					SetActivePalette(1, 0, screen.ysize)
+					DrawSpriteScreenXY(16, screen.xcenter, temp0)					
+					SetActivePalette(0, 0, screen.ysize)
+					temp2 = screen.xcenter
+					temp2 -= 140
+					DrawRect(temp2, temp0, 280, 42, 0, 0, 0, save.opacity)
+					switch save.substate
+						case 5
+							temp2 = save.charselect
+							temp2 += 42
+							DrawSpriteScreenXY(temp2, screen.xcenter, temp0)
+							break
+						default
+							DrawSpriteScreenXY(47, screen.xcenter, temp0)
+							break
+					end switch					
+					DrawSpriteScreenXY(109, screen.xcenter, temp0)
+				else
+					DrawSpriteScreenXY(47, screen.xcenter, temp0)
+					DrawSpriteScreenXY(18, screen.xcenter, temp0)
+				end if		
+				if saved.lives == 0
+					DrawSpriteScreenXY(53, screen.xcenter, temp0)
+				end if
+				DrawSpriteScreenXY(1, screen.xcenter, temp0)
+			end if
+			CallFunction(SaveEmeralds)
+		end if	
+	temp0 += save.gap
+	temp1++
+	loop
+	
+	temp0 = screen.ycenter
+	temp0 *= 3
+	temp0 -= menu.zigzag.yoffset
+	switch save.substate
+		case 1
+		case 2
+		case 3
+			DrawSpriteScreenXY(79, screen.xcenter, temp0)
+			break
+		case 0		
+			DrawSpriteScreenXY(78, screen.xcenter, temp0)
+			break
+	end switch
+end function
+
+event ObjectStartup
+
+	LoadSpriteSheet("Menus/MainMenuNewCore.gif")
+	
+	//Save Select	
+	SpriteFrame(-141, -1, 282, 44, 741, 646) //0 No Save Outline
+	SpriteFrame(-141, -1, 282, 44, 741, 691) //1 Save Outline
+	
+	SpriteFrame(-140, 0, 280, 42, 742, 603) //2 No Save BG
+	SpriteFrame(-140, 0, 280, 42, 742, 1)  //3 Emerald Hill BG
+	SpriteFrame(-140, 0, 280, 42, 742, 44) //4 Chemical Plant BG
+	SpriteFrame(-140, 0, 280, 42, 742, 87) //5 Aquatic Ruin BG
+	SpriteFrame(-140, 0, 280, 42, 742, 130) //6 Casino Night BG
+	SpriteFrame(-140, 0, 280, 42, 742, 173) //7 Hill Top BG
+	SpriteFrame(-140, 0, 280, 42, 742, 216) //8 Mystic Cave BG
+	SpriteFrame(-140, 0, 280, 42, 742, 259) //9 Oil Ocean BG
+	SpriteFrame(-140, 0, 280, 42, 742, 302) //10 Metropolis BG
+	SpriteFrame(-140, 0, 280, 42, 742, 345) //11 Sky Chase BG
+	SpriteFrame(-140, 0, 280, 42, 742, 388) //12 Wing Fortress BG
+	SpriteFrame(-140, 0, 280, 42, 742, 431) //13 Death Egg BG
+	SpriteFrame(-140, 0, 280, 42, 742, 517) //14 Hidden Palace BG
+	SpriteFrame(-140, 0, 280, 42, 742, 560) //15 Complete BG	
+	SpriteFrame(-140, 0, 280, 42, 742, 474) //16 New Save BG
+	
+	SpriteFrame(-99, 17, 73, 7, 668, 1)  //17 No Save Text
+	SpriteFrame(-99, 17, 84, 7, 657, 9)  //18 New Save Text
+	SpriteFrame(-99, 12, 70, 7, 671, 25) //19 Delete Text
+	SpriteFrame(-99, 23, 31, 7, 688, 33) //20 Yes Text White
+	SpriteFrame(-50, 23, 21, 7, 720, 33) //21 No Text White
+		SpriteFrame(-99, 23, 31, 7, 688, 41) //22 Yes Text Yellow
+		SpriteFrame(-50, 23, 21, 7, 720, 41) //23 No Text Yellow
+	SpriteFrame(-99, 23, 41, 7, 700, 73) //24 Zone Text
+	
+	SpriteFrame(-99, 12, 143, 7, 598, 81)  //25 Emerald Hill
+	SpriteFrame(-99, 12, 143, 7, 598, 89)  //26 Chemical Plant
+	SpriteFrame(-99, 12, 143, 7, 598, 97)  //27 Aquatic Ruin
+	SpriteFrame(-99, 12, 143, 7, 598, 105)  //28 Casino Night
+	SpriteFrame(-99, 12, 143, 7, 598, 113)  //29 Hill Top
+	SpriteFrame(-99, 12, 143, 7, 598, 121)  //30 Mystic Cave
+	SpriteFrame(-99, 12, 143, 7, 598, 129)  //31 Oil Ocean
+	SpriteFrame(-99, 12, 143, 7, 598, 137)  //32 Metropolis
+	SpriteFrame(-99, 12, 143, 7, 598, 145)  //33 Sky Chase
+	SpriteFrame(-99, 12, 143, 7, 598, 153)  //34 Wing Fortress
+	SpriteFrame(-99, 12, 143, 7, 598, 161)  //35 Death Egg
+	SpriteFrame(-99, 12, 143, 7, 598, 169)  //36 Hidden Palace	
+	SpriteFrame(-99, 17, 85, 7, 656, 17)   //37 Complete Text
+	
+	SpriteFrame(-48, 23, 51, 7, 690, 49)   //38 Act 1
+	SpriteFrame(-48, 23, 51, 7, 690, 57)   //39 Act 2
+	SpriteFrame(-48, 23, 51, 7, 690, 65)   //40 Act 3
+	SpriteFrame(0, 0, 0, 0, 723, 82)   //41 Blank	
+	
+	SpriteFrame(-134, 6, 30, 30, 600, 177)   //42 Sonic Portrait	
+	SpriteFrame(-134, 6, 30, 30, 631, 177)   //43 Tails Portrait
+	SpriteFrame(-134, 6, 30, 30, 662, 177)   //44 Knuckles Portrait
+		//SpriteFrame(-143, 6, 48, 30, 693, 177)   //128 Sonic&Tails Portrait
+	SpriteFrame(-139, 6, 40, 30, 699, 241)   //45 Sonic&Tails Portrait
+	SpriteFrame(-139, 6, 40, 30, 590, 239)   //46 Knuckles&Tails Portrait
+	SpriteFrame(-134, 6, 30, 30, 600, 208)   //47 Blank Portrait
+	
+	SpriteFrame(58, 2, 16, 39, 631, 208)   //48 Sonic Icon
+	SpriteFrame(58, 2, 16, 39, 648, 208)   //49 Tails Icon
+	SpriteFrame(58, 2, 16, 39, 665, 208)   //50 Knuckles Icon
+	SpriteFrame(58, 2, 16, 39, 631, 208)   //51 Sonic&Tails Icon
+	SpriteFrame(58, 2, 16, 39, 665, 208)   //52 Knuckles&Tails Icon
+	SpriteFrame(58, 2, 16, 39, 682, 208)   //53 Blank Icon
+		//SpriteFrame(58, 2, 25, 24, 574, 214)   //134 Sonic&Tails Icon
+	
+	SpriteFrame(85, 6, 9, 7, 172, 145) //54 0
+	SpriteFrame(85, 6, 8, 7, 182, 145) //55 1
+	SpriteFrame(85, 6, 9, 7, 191, 145) //56 2
+	SpriteFrame(85, 6, 9, 7, 201, 145) //57 3
+	SpriteFrame(85, 6, 9, 7, 211, 145) //58 4
+	SpriteFrame(85, 6, 9, 7, 221, 145) //59 5
+	SpriteFrame(85, 6, 9, 7, 231, 145) //60 6
+	SpriteFrame(85, 6, 9, 7, 241, 145) //61 7
+	SpriteFrame(85, 6, 9, 7, 251, 145) //62 8
+	SpriteFrame(85, 6, 9, 7, 261, 145) //63 9
+	
+	SpriteFrame(116, 2, 10, 10, 699, 208) //64 Emerald 1
+	SpriteFrame(128, 9, 10, 10, 710, 208) //65 Emerald 2
+	SpriteFrame(128, 22, 10, 10, 721, 208) //66 Emerald 3
+	SpriteFrame(116, 30, 10, 10, 699, 219) //67 Emerald 4
+	SpriteFrame(104, 22, 10, 10, 710, 219) //68 Emerald 5
+	SpriteFrame(104, 9, 10, 10, 721, 219) //69 Emerald 6
+	SpriteFrame(116, 16, 10, 10, 699, 230) //70 Emerald 7
+	
+	SpriteFrame(116, 2, 10, 10, 710, 230) //71 Emerald 1 Blank
+	SpriteFrame(128, 9, 10, 10, 710, 230) //72 Emerald 2 Blank
+	SpriteFrame(128, 22, 10, 10, 710, 230) //73 Emerald 3 Blank
+	SpriteFrame(116, 30, 10, 10, 710, 230) //74 Emerald 4 Blank
+	SpriteFrame(104, 22, 10, 10, 710, 230) //75 Emerald 5 Blank
+	SpriteFrame(104, 9, 10, 10, 710, 230) //76 Emerald 6 Blank
+	SpriteFrame(116, 16, 10, 10, 710, 230) //77 Emerald 7 Blank
+	
+	SpriteFrame(161, -50, 43, 99, 696, 272) //78 Delete Unhighlight
+	SpriteFrame(161, -50, 43, 99, 696, 372) //79 Delete Highlight
+		SpriteFrame(0, 0, 4, 7, 233, 153) //80 dot
+	
+	//Numbers Save Highlight
+	SpriteFrame(85, 6, 9, 7, 498, 177) //81 0
+	SpriteFrame(85, 6, 8, 7, 508, 177) //82 1
+	SpriteFrame(85, 6, 9, 7, 518, 177) //83 2
+	SpriteFrame(85, 6, 9, 7, 528, 177) //84 3
+	SpriteFrame(85, 6, 9, 7, 538, 177) //85 4
+	SpriteFrame(85, 6, 9, 7, 548, 177) //86 5
+	SpriteFrame(85, 6, 9, 7, 558, 177) //87 6
+	SpriteFrame(85, 6, 9, 7, 568, 177) //88 7
+	SpriteFrame(85, 6, 9, 7, 578, 177) //89 8
+	SpriteFrame(85, 6, 9, 7, 588, 177) //90 9
+	
+	SpriteFrame(-99, 12, 143, 7, 454, 81)  //91 Emerald Hill
+	SpriteFrame(-99, 12, 143, 7, 454, 89)  //92 Chemical Plant
+	SpriteFrame(-99, 12, 143, 7, 454, 97)  //93 Aquatic Ruin
+	SpriteFrame(-99, 12, 143, 7, 454, 105)  //94 Casino Night
+	SpriteFrame(-99, 12, 143, 7, 454, 113)  //95 Hill Top
+	SpriteFrame(-99, 12, 143, 7, 454, 121)  //96 Mystic Cave
+	SpriteFrame(-99, 12, 143, 7, 454, 129)  //97 Oil Ocean
+	SpriteFrame(-99, 12, 143, 7, 454, 137)  //98 Metropolis
+	SpriteFrame(-99, 12, 143, 7, 454, 145)  //99 Sky Chase
+	SpriteFrame(-99, 12, 143, 7, 454, 153)  //100 Wing Fortress
+	SpriteFrame(-99, 12, 143, 7, 454, 161)  //101 Death Egg
+	SpriteFrame(-99, 12, 143, 7, 454, 169)  //102 Hidden Palace	
+	SpriteFrame(-99, 17, 85, 7, 512, 17)   //103 Complete Text	
+	
+	SpriteFrame(-48, 23, 51, 7, 546, 49)   //104 Act 1
+	SpriteFrame(-48, 23, 51, 7, 546, 57)   //105 Act 2
+	SpriteFrame(-48, 23, 51, 7, 546, 65)   //106 Act 3
+	SpriteFrame(0, 0, 0, 0, 723, 82)   //107 Blank	
+	
+	SpriteFrame(-99, 17, 73, 7, 524, 1)  //108 No Save Text
+	SpriteFrame(-99, 17, 84, 7, 513, 9)  //109 New Save Text
+	SpriteFrame(-99, 23, 41, 7, 556, 73) //110 Zone Text
+
+	SpriteFrame(-77, 0, 153, 8, 165, 10) //111 Save Select Unhighlighted
+
+	SpriteFrame(0, 0, 8, 256, 1, 641) //112 Arrows R
+
+	
+	CallFunction(ResetPal)
+	
+	SetMusicTrack("SweetDream.ogg", 0, 1)
+	LoadPalette("SaveSlot.act", 1, 0, 0, 256)
+	LoadPalette("AchieveIcon.act", 2, 0, 0, 256)
+	
+	temp0 = 0
+	while temp0 < 256
+		GetPaletteEntry(2, temp0, temp1)
+		
+		math.red = temp1
+		math.red &= 0xFF0000
+		math.red >>= 16
+		
+		math.green = temp1
+		math.green &= 0x00FF00
+		math.green >>= 8
+		
+		math.blue = temp1
+		math.blue &= 0x0000FF
+		
+		if math.grey == 1
+			math.red *= weight.red
+			math.green *= weight.green
+			math.blue *= weight.blue
+			
+			temp1 = math.blue
+			temp1 += math.green
+			temp1 += math.red
+			temp2 = weight.red
+			temp2 += weight.green
+			temp2 += weight.blue
+			temp1 /= temp2
+			
+		else
+			temp1 = math.blue
+			temp1 += math.green
+			temp1 += math.red
+			temp1 /= 3
+		
+		end if
+		
+		temp1 &= 0xFF
+		temp2 = temp1
+		temp2 <<= 8
+		temp2 += temp1
+		temp2 <<= 8
+		temp2 += temp1
+		
+		SetPaletteEntry(3, temp0, temp2)
+		temp0++
+	loop
+end event
+
+event RSDKDraw
+	DrawSprite(0)
+end event
+
+event RSDKLoad
+	LoadSpriteSheet("Global/Display.gif")
+	SpriteFrame(-16, -16, 32, 32, 223, 172)
+end event

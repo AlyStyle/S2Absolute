@@ -1,0 +1,415 @@
+// ----------------------------------
+// RSDK Project: S2A
+// Script Description: [Object Name]
+// Script Author: [YOU]
+// ----------------------------------
+
+//-------Aliases-------//
+
+
+rivate value draw.new.save = 0;
+private value draw.character = 0;
+private value draw.lives = 0;
+private value draw.zone = 0;
+private value draw.act = 0;
+private value draw.emeralds = 0;
+private value draw.continues = 0;
+
+private value math.red = 0;
+private value math.green = 0;
+private value math.blue = 0;
+private value math.grey = 1;
+
+private alias 299 : weight.red
+private alias 587 : weight.green
+private alias 114 : weight.blue
+
+
+private alias object.value0 : menu.mainsel
+private alias object.value1 : menu.page
+private alias object.value2 : menu.page1.xoffset
+private alias object.value3 : menu.page1.xtarget
+private alias object.value4 : menu.fade
+private alias object.value5 : menu.loadcall
+private alias object.value6 : menu.zigzagscroll
+private alias object.value7 : menu.options.highlight
+private alias object.value8 : menu.zigzag.yoffset
+private alias object.value9 : menu.zigzag.ytarget
+private alias object.value10 : menu.drawMode
+
+private alias object.value11 : menu.sub.ymin
+private alias object.value12 : menu.sub.ymax
+private alias object.value13 : menu.sub.yoffset
+private alias object.value14 : menu.sub.ytarget
+
+private alias object.value15 : save.slot
+private alias object.value16 : save.substate
+private alias object.value17 : save.charselect
+private alias object.value18 : save.complete.stage
+
+private alias object.value19 : achieve.highlight
+private alias object.value20 : achieve.compcount
+
+private alias object.value21 : menu.modes.highlight
+private alias object.value22 : menu.extras.highlight
+
+private alias object.value23 : menu.timer
+
+private alias object.value24 : slots.milliseconds
+private alias object.value25 : slots.seconds
+private alias object.value26 : slots.minutes
+
+private alias object.value27 : hold.time
+
+private alias object.value28 : delete.check
+private alias object.value29 : delete.ticker
+
+private alias 10 : menu.zigzag.yspeed
+private alias 10 : menu.sub.yspeed
+private alias 15 : options.gap
+private alias 50 : save.gap
+private alias 66 : achieve.gap
+private alias 50 : save.opacity
+
+private alias 11 : achieve.count
+private alias 2 : modes.count
+private alias 2 : extras.count
+
+public alias saveRAM[257] : saved.spindash
+
+
+public alias saveRAM[260] : saved.spikeBehavior
+public alias saveRAM[261] : saved.shieldType
+public alias saveRAM[262] : saved.Title
+public alias saveRAM[263] : saved.Jumplock
+public alias saveRAM[264] : saved.Supermusic
+public alias saveRAM[265] : saved.Dropdash
+public alias saveRAM[266] : saved.Instashield
+public alias saveRAM[267] : saved.Peelout
+public alias saveRAM[268] : saved.FlightCancel
+public alias saveRAM[269] : saved.SonicMaxDash
+public alias saveRAM[270] : saved.Speen
+public alias saveRAM[271] : saved.Supercancel
+public alias saveRAM[272] : saved.Drowning
+public alias saveRAM[273] : saved.Timer
+public alias saveRAM[274] : saved.region
+public alias saveRAM[275] : saved.elemental
+public alias saveRAM[276] : saved.rotate
+public alias saveRAM[277] : saved.invincibilityType
+public alias saveRAM[278] : saved.speedCap
+public alias saveRAM[279] : saved.airSpeedCap
+public alias saveRAM[280] : saved.GoGoPlus
+public alias saveRAM[281] : saved.lives
+public alias saveRAM[282] : saved.bubble
+public alias saveRAM[283] : saved.timeLimit
+public alias saveRAM[285] : saved.randomMonitor
+public alias saveRAM[286] : saved.language
+
+public alias saveRAM[294] : saved.graphics
+public alias saveRAM[295] : saved.mobile
+public alias saveRAM[296] : saved.transmobile
+public alias saveRAM[297] : saved.TailsMaxDash
+public alias saveRAM[298] : saved.KnuxMaxDash
+public alias saveRAM[300] : saved.SuperMaxDash
+
+
+
+reserve function Modes.LoadOut
+reserve function Menu.firstcontrol
+reserve function Menu.LoadIn
+reserve function Plane.Snapback
+reserve function CloudDebug
+reserve function ExtrasControl
+reserve function SaveControl
+reserve function AchieveControl
+reserve function LoadforDraw
+reserve function YOffsetControl
+reserve function ExtrasDraw
+reserve function OptionsDraw
+reserve function OptionsDrawSetup
+reserve function SaveDraw
+reserve function SaveEmeralds
+reserve function AchieveDraw
+reserve function AchieveDescribe
+reserve function DeleteProcessSetup
+reserve function ResetPal
+reserve function OtherScriptActive
+reserve function ModesDraw
+
+reserve function display.menu
+reserve function gameplay.menu
+reserve function abilities.menu
+reserve function visuals.menu
+reserve function sound.menu
+reserve function datamang.menu
+
+reserve function display.draw
+reserve function gameplay.draw
+reserve function abilities.draw
+reserve function visuals.draw
+reserve function sound.draw
+reserve function datamang.draw
+
+reserve function menu.holdmovement
+reserve function PlayRingSound
+reserve function BlackandWhite
+
+reserve function delete.save
+reserve function delete.ta
+reserve function delete.arcade
+reserve function delete.golf
+reserve function delete.extra
+reserve function delete.achieve
+reserve function delete.secret
+reserve function option.restore
+reserve function ModesControl
+
+//Static Values
+private value saved.fullscreen = 0;
+private value saved.scale = 0;
+private value saved.vsync = 0;
+private value saved.scalemode = 0;
+private value saved.fps = 0;
+
+
+//-------Tables--------//
+private table ZoneCompleteLoad
+	0, 2, 4, 6, 8, 10, 12, 14, 17, 18, 19, 20
+end table
+
+private table ZoneCompleteDraw
+	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+end table
+
+private table Cloud_Type
+	0, 1, 2, 0, 2, 1, 0, 1
+end table
+
+private table AchieveOrder
+	0, 2, 9, 1, 4, 5, 8, 3, 6, 10, 11, 7, 2
+	12, 13, 14, 15, 16, 17, 18, 19
+	20, 21, 22, 23, 24, 25, 26, 27, 29, 29
+end table
+
+private table Cloud_X
+620, 504, 428, 2984, 2784, 3124, 1076, 1012
+end table
+
+private table Cloud_Y
+140, 68, 108, 80, 164, 128, 76, 96
+end table
+
+private table Palette_Reset
+	0x2020A0, 0x2040C0, 0x4040E0, 0x6060E0
+	0x800000, 0xE08000, 0xE0A000, 0xA06040
+	0x600020, 0xC00020, 0xE04060
+end table
+
+
+
+function Modes.LoadOut
+	if menu.fade < 320
+		menu.fade += 16
+		music.volume -= 2
+	else
+		StopMusic()
+		LoadStage()
+	end if
+	SetScreenFade(0, 0, 0, menu.fade)
+end function
+
+event ObjectMain				
+	CallFunction(object.state)
+end event
+
+function ModesControl
+	temp0 = menu.modes.highlight
+	temp0 *= save.gap
+	menu.sub.ymax = temp0
+	temp0 -= 150
+	menu.sub.ymin = temp0
+	
+	if inputPress.up == 1
+		menu.modes.highlight--
+		PlaySfx(SfxName[Score Add], 0)
+		while menu.modes.highlight < 0
+			menu.modes.highlight += modes.count
+		loop
+	else
+		if inputPress.down == 1
+			menu.modes.highlight++
+			PlaySfx(SfxName[Score Add], 0)
+			menu.modes.highlight %= modes.count
+		end if
+	end if
+	
+	temp0 = inputPress.start
+	temp0 |= inputPress.buttonA
+	if temp0 == 1
+		PlaySfx(SfxName[Star Post], 0)
+		switch menu.modes.highlight
+			case 0 //Time Attack
+				stage.activeList = PRESENTATION_STAGE
+				stage.listPos = 7				
+				object.state = Modes.LoadOut
+				break
+			case 1 //Arcade
+				stage.activeList = PRESENTATION_STAGE
+				stage.listPos = 8				
+				object.state = Modes.LoadOut
+				break
+		end switch
+	end if
+	
+	
+	if menu.sub.ytarget < menu.sub.ymin
+		menu.sub.ytarget = menu.sub.ymin
+	else
+		if menu.sub.ytarget > menu.sub.ymax
+			menu.sub.ytarget = menu.sub.ymax
+		end if
+	end if
+	
+	if inputPress.buttonB == 1
+		object[9].priority = PRIORITY_ACTIVE
+		object[9].value14 = 0
+		object[9].value9 = 0
+		object[9].state = Menu.firstcontrol
+	end if
+end function
+
+event ObjectDraw
+	if object[9].value9 != 0
+		if menu.zigzag.yoffset != 240
+			 menu.zigzag.yoffset += 10
+		end if
+	else
+		if menu.zigzag.yoffset != 0
+			 menu.zigzag.yoffset -= 10
+		end if
+	end if
+	CallFunction(ModesDraw)
+end event
+
+function ModesDraw	
+	temp0 = screen.ycenter
+	temp0 += 125
+	temp0 -= menu.zigzag.yoffset
+	temp0 <<= 1
+	
+	temp0 -= menu.sub.yoffset
+	
+	DrawSpriteScreenXY(1, screen.xcenter, temp0)
+	temp0 += options.gap
+	temp0 += options.gap
+	
+	temp1 = 0
+	while temp1 < modes.count
+		if temp1 == menu.modes.highlight
+			SetActivePalette(1, 0, screen.ysize)
+			temp2 = 7
+		else
+			temp2 = 2
+		end if
+		temp2 += temp1
+		DrawSpriteScreenXY(temp2, screen.xcenter, temp0)
+		DrawSpriteScreenXY(temp2, screen.xcenter, temp0)
+		SetActivePalette(0, 0, screen.ysize)
+	temp0 += save.gap
+	temp1++
+	loop
+end function
+
+event ObjectStartup
+	//ReadSaveRAM()
+
+	
+	recRings = 0
+	recShield = 0
+	recRingBonus = 0
+	recGoggles = 0
+						
+	stage.debugMode = 0
+	LoadSpriteSheet("Menus/MainMenuNewCore.gif")
+	
+	//Main Menu
+	SpriteFrame(-77, 0, 153, 8, 165, 10) //0 Save Select Unhighlighted
+	SpriteFrame(-70, 0, 139, 8, 165, 19) //1 Game Modes Unhighlighted
+
+	//Game Modes (not highlighted)	
+	Spriteframe(-141, -1, 282, 44, 741, 979) //2 Time Attack
+	Spriteframe(-141, -1, 282, 44, 741, 934) //3 Arcade Mode
+	Spriteframe(-141, -1, 0, 0, 741, 979) //4 Blank
+	Spriteframe(-141, -1, 0, 0, 741, 979) //5 Blank
+	Spriteframe(-141, -1, 0, 0, 741, 979) //6 Blank
+	
+	//Game Modes (highlighted)
+	Spriteframe(-141, -1, 282, 44, 458, 979) //7 Time Attack
+	Spriteframe(-141, -1, 282, 44, 458, 934) //8 Arcade Mode
+	Spriteframe(-141, -1, 0, 0, 458, 979) //9 Blank
+	Spriteframe(-141, -1, 0, 0, 458, 979) //10 Blank
+	Spriteframe(-141, -1, 0, 0, 458, 979) //11 Blank
+
+	SpriteFrame(0, 0, 8, 256, 1, 641) //12 Arrows R
+	
+	CallFunction(ResetPal)
+	
+	LoadPalette("SaveSlot.act", 1, 0, 0, 256)
+	LoadPalette("AchieveIcon.act", 2, 0, 0, 256)
+	
+	temp0 = 0
+	while temp0 < 256
+		GetPaletteEntry(2, temp0, temp1)
+		
+		math.red = temp1
+		math.red &= 0xFF0000
+		math.red >>= 16
+		
+		math.green = temp1
+		math.green &= 0x00FF00
+		math.green >>= 8
+		
+		math.blue = temp1
+		math.blue &= 0x0000FF
+		
+		if math.grey == 1
+			math.red *= weight.red
+			math.green *= weight.green
+			math.blue *= weight.blue
+			
+			temp1 = math.blue
+			temp1 += math.green
+			temp1 += math.red
+			temp2 = weight.red
+			temp2 += weight.green
+			temp2 += weight.blue
+			temp1 /= temp2
+			
+		else
+			temp1 = math.blue
+			temp1 += math.green
+			temp1 += math.red
+			temp1 /= 3
+		
+		end if
+		
+		temp1 &= 0xFF
+		temp2 = temp1
+		temp2 <<= 8
+		temp2 += temp1
+		temp2 <<= 8
+		temp2 += temp1
+		
+		SetPaletteEntry(3, temp0, temp2)
+		temp0++
+	loop
+end event
+
+event RSDKDraw
+	DrawSprite(0)
+end event
+
+event RSDKLoad
+	LoadSpriteSheet("Global/Display.gif")
+	SpriteFrame(-16, -16, 32, 32, 223, 172)
+end event

@@ -1,14 +1,13 @@
 // ----------------------------------
-// RSDK Project: Sonic 1/Sonic 2
-// Script Description: Sonic Team Object
-// Script Author: Christan Whitehead/Simon Thomley
-// Unpacked by Rubberduckycooly's script unpacker
+// RSDK Project: S2A
+// Script Description: [Object Name]
+// Script Author: [YOU]
 // ----------------------------------
 
-reserve function VersionNumber
-
 //-------Aliases-------//
-private value draw.new.save = 0;
+
+
+rivate value draw.new.save = 0;
 private value draw.character = 0;
 private value draw.lives = 0;
 private value draw.zone = 0;
@@ -51,6 +50,7 @@ private alias object.value18 : save.complete.stage
 private alias object.value19 : achieve.highlight
 private alias object.value20 : achieve.compcount
 
+private alias object.value21 : menu.modes.highlight
 private alias object.value22 : menu.extras.highlight
 
 private alias object.value23 : menu.timer
@@ -72,6 +72,7 @@ private alias 66 : achieve.gap
 private alias 50 : save.opacity
 
 private alias 11 : achieve.count
+private alias 2 : modes.count
 private alias 2 : extras.count
 
 public alias saveRAM[257] : saved.spindash
@@ -113,12 +114,11 @@ public alias saveRAM[300] : saved.SuperMaxDash
 
 
 
-reserve function Menu.LoadOut
+reserve function Modes.LoadOut
 reserve function Menu.firstcontrol
 reserve function Menu.LoadIn
 reserve function Plane.Snapback
 reserve function CloudDebug
-reserve function ModesControl
 reserve function ExtrasControl
 reserve function SaveControl
 reserve function AchieveControl
@@ -134,6 +134,7 @@ reserve function AchieveDescribe
 reserve function DeleteProcessSetup
 reserve function ResetPal
 reserve function OtherScriptActive
+reserve function ModesDraw
 
 reserve function display.menu
 reserve function gameplay.menu
@@ -161,6 +162,7 @@ reserve function delete.extra
 reserve function delete.achieve
 reserve function delete.secret
 reserve function option.restore
+reserve function ModesControl
 
 //Static Values
 private value saved.fullscreen = 0;
@@ -203,382 +205,81 @@ private table Palette_Reset
 	0x600020, 0xC00020, 0xE04060
 end table
 
-function OtherScriptActive
-end function
-
-function option.restore
-	Engine.BGMVolume = 40
-	Engine.SFXVolume = 40
-
-	arrayPos0 = 257
-	while arrayPos0 <= 285
-	    saveRAM[arrayPos0] = 0
-	    arrayPos0++
-	loop
-	WriteSaveRAM()
-
-	arrayPos0 = 294
-	while arrayPos0 <= 300
-	    saveRAM[arrayPos0] = 0
-	    arrayPos0++
-	loop
-	WriteSaveRAM()
-
-	CallFunction(ResetPal)
-	LoadPalette("MainMenu.act", 0, 0, 0, 256)
-	LoadPalette("SaveSlot.act", 1, 0, 0, 256)
-	LoadPalette("AchieveIcon.act", 2, 0, 0, 256)
-	CallFunction(BlackandWhite)
-	CreateTempObject(TypeName[Palette Police], saved.graphics, 0, 0)
-end function
-
-function BlackandWhite
-	temp0 = 0
-	while temp0 < 256
-		GetPaletteEntry(2, temp0, temp1)
-		
-		math.red = temp1
-		math.red &= 0xFF0000
-		math.red >>= 16
-		
-		math.green = temp1
-		math.green &= 0x00FF00
-		math.green >>= 8
-		
-		math.blue = temp1
-		math.blue &= 0x0000FF
-		
-		if math.grey == 1
-			math.red *= weight.red
-			math.green *= weight.green
-			math.blue *= weight.blue
-			
-			temp1 = math.blue
-			temp1 += math.green
-			temp1 += math.red
-			temp2 = weight.red
-			temp2 += weight.green
-			temp2 += weight.blue
-			temp1 /= temp2
-			
-		else
-			temp1 = math.blue
-			temp1 += math.green
-			temp1 += math.red
-			temp1 /= 3
-		
-		end if
-		
-		temp1 &= 0xFF
-		temp2 = temp1
-		temp2 <<= 8
-		temp2 += temp1
-		temp2 <<= 8
-		temp2 += temp1
-		
-		SetPaletteEntry(3, temp0, temp2)
-		temp0++
-	loop
-end function
-
-function PlayRingSound
-	if ringPan == 0
-		PlaySfx(SfxName[Ring L], 0)
-		SetSfxAttributes(SfxName[Ring L], -1, -100)
-		ringPan = 1
-	else
-		PlaySfx(SfxName[Ring R], 0)
-		SetSfxAttributes(SfxName[Ring R], -1, 100)
-		ringPan = 0
-	end if
-end function
-
-function menu.holdmovement
-		if inputDown.up == 1
-			hold.time++
-			if hold.time >= 20
-				inputPress.up = 1
-				hold.time = 12
-			end if
-		else	
-			if inputDown.down == 1
-				hold.time++
-				if hold.time >= 20
-					inputPress.down = 1
-					hold.time = 12
-				end if
-			else
-				if inputDown.right == 1
-					hold.time++
-					if hold.time >= 20
-						inputPress.right = 1
-						hold.time = 12
-					end if		
-				else
-					if inputDown.left == 1
-						hold.time++
-						if hold.time >= 20
-							inputPress.left = 1
-							hold.time = 12
-						end if		
-					else
-						hold.time = 0
-					end if
-				end if
-			end if
-		end if
-end function 
 
 
-function main.sound	
-	temp0 = inputPress.left
-	temp0 |= inputPress.right
-	temp0 |= inputPress.up
-	temp0 |= inputPress.down
-	temp0 |= inputPress.buttonL
-	temp0 |= inputPress.buttonR
-	if temp0 == 1
-		PlaySfx(SfxName[Score Add], 0)
-	end if
-end function
-
-function main.soundconf
-	temp0 = inputPress.buttonA
-	temp0 |= inputPress.start
-	if temp0 == 1
-		PlaySfx(SfxName[Star Post], 0)
-	end if
-end function
-
-
-function YOffsetControl
-	if menu.zigzag.yoffset == menu.zigzag.ytarget
-	else
-		temp0 = menu.zigzag.yoffset
-		temp0 -= menu.zigzag.ytarget
-		Abs(temp0)
-		if temp0 <= menu.zigzag.yspeed
-			menu.zigzag.yoffset = menu.zigzag.ytarget
-			object[9].priority = PRIORITY_ACTIVE_PAUSED
-		else
-			if menu.zigzag.yoffset < menu.zigzag.ytarget
-				menu.zigzag.yoffset += menu.zigzag.yspeed
-			else
-				menu.zigzag.yoffset -= menu.zigzag.yspeed
-			end if
-		end if
-	end if
-		
-	if menu.sub.yoffset == menu.sub.ytarget
-	else
-		temp0 = menu.sub.yoffset
-		temp0 -= menu.sub.ytarget
-		Abs(temp0)
-		if temp0 <= menu.sub.yspeed
-			menu.sub.yoffset = menu.sub.ytarget
-		else
-			if menu.sub.yoffset < menu.sub.ytarget
-				menu.sub.yoffset += menu.sub.yspeed
-			else
-				menu.sub.yoffset -= menu.sub.yspeed
-			end if
-		end if
-	end if
-end function
-
-function CloudDebug
-	temp0 = 20
-	temp1 = screen.xcenter
-	temp2 = screen.xsize
-	temp2 -= 20
-	temp3 = 45
-	temp5 = 60
-	foreach (TypeName[Menu Cloud], arrayPos0, ALL_ENTITIES)
-		DrawNumbers(332, temp0, temp3, arrayPos0, 8, 8, 0)
-		DrawNumbers(332, temp5, temp3, object[arrayPos0].propertyValue, 8, 8, 0)
-		temp4 = object[arrayPos0].xpos
-		temp4 >>= 16
-		DrawNumbers(332, temp1, temp3, temp4, 8, 8, 0)
-		DrawNumbers(332, temp2, temp3, object[arrayPos0].value1, 8, 8, 0)
-		temp3 += 16
-	next
-	DrawNumbers(332, screen.xcenter, 20, screen.xoffset, 8, 8, 0)
-end function
-
-function Plane.Snapback
-	foreach (TypeName[Menu Cloud], arrayPos0, ALL_ENTITIES)
-		temp0 = object[arrayPos0].xpos
-		temp0 >>= 16
-		if temp0 != object[arrayPos0].value1 //cloud is active
-			temp0 = screen.xoffset
-			temp0 <<= 16
-			object[arrayPos0].xpos -= temp0			
-		end if	
-	next
-	
-	screen.xoffset = 0
-end function
-
-
-function Menu.LoadIn
-	if menu.fade == 0
-		//One time setups for menu
-		temp0 = 0
-		achieve.compcount = 0
-		while temp0 < achieve.count
-			GetTableValue(temp1, temp0, AchieveOrder)
-			arrayPos0 = 400
-			arrayPos0 += temp1
-			achieve.compcount += saveRAM[arrayPos0]
-			temp0++
-		loop
-	end if
-	
-	if menu.fade < 320
-		menu.fade += 16
-		temp0 = 320
-		temp0 -= menu.fade
-		SetScreenFade(0, 0, 0, temp0)
-	else
-		object.state = Menu.firstcontrol
-		PlayMusic(0)
-		menu.fade = 0
-		
-	end if
-end function
-
-
-function Menu.LoadOut
+function Modes.LoadOut
 	if menu.fade < 320
 		menu.fade += 16
 		music.volume -= 2
 	else
 		StopMusic()
-		switch menu.loadcall
-			case 1
-				CallNativeFunction(OpenModMenu)
-				break
-			case 2
-				CallNativeFunction(ExitGame)
-				break
-			default
-				LoadStage()
-				break
-		end switch
+		LoadStage()
 	end if
 	SetScreenFade(0, 0, 0, menu.fade)
 end function
 
+event ObjectMain				
+	CallFunction(object.state)
+end event
 
-function Menu.firstcontrol
-	if inputPress.right == 1
-		menu.mainsel++
-		CallFunction(main.sound)
-		menu.mainsel %= 7
-	end if
-	if inputPress.left == 1				
-		menu.mainsel--
-		CallFunction(main.sound)
-		while menu.mainsel < 0
-			menu.mainsel += 7
+function ExtrasControl	
+	if inputPress.left == 1
+		menu.extras.highlight--
+		PlaySfx(SfxName[Score Add], 0)
+		while menu.extras.highlight < 0
+			menu.extras.highlight += extras.count
 		loop
+	else
+		if inputPress.right == 1
+			menu.extras.highlight++
+			PlaySfx(SfxName[Score Add], 0)
+			menu.extras.highlight %= extras.count
+		end if
 	end if
-	CheckEqual(inputPress.start, 1)
-	temp0 = checkResult
-	CheckEqual(inputPress.buttonA, 1)
-	temp0 |= checkResult
+	
+	temp0 = inputPress.start
+	temp0 |= inputPress.buttonA
 	if temp0 == 1
-		switch menu.mainsel
-			case 0 //Save Select
-				CallFunction(main.soundconf)				
-				object.state = OtherScriptActive				
-				menu.zigzag.ytarget = 240
-				object[10].priority = PRIORITY_INACTIVE
-				object[11].priority = PRIORITY_INACTIVE
-				object[12].priority = PRIORITY_INACTIVE
-				object[13].priority = PRIORITY_INACTIVE
-				object[14].priority = PRIORITY_ACTIVE
-				inputPress.start = 0
-				inputPress.ButtonA = 0
-				object[14].state = SaveControl
-				//PlaySfx(SfxName[Fail], 0)
-				break
-			case 1 //Game Modes
-				CallFunction(main.soundconf)				
-				object.state = OtherScriptActive				
-				menu.zigzag.ytarget = 240
-				object[10].priority = PRIORITY_ACTIVE
-				object[11].priority = PRIORITY_INACTIVE
-				object[12].priority = PRIORITY_INACTIVE
-				object[13].priority = PRIORITY_INACTIVE
-				object[14].priority = PRIORITY_INACTIVE
-				inputPress.start = 0
-				inputPress.ButtonA = 0
-				object[10].state = ModesControl
-				//PlaySfx(SfxName[Fail], 0)
-				break
-			case 2 //Options
-				CallFunction(main.soundconf)				
-				object.state = OtherScriptActive				
-				menu.zigzag.ytarget = 240
-				object[10].priority = PRIORITY_INACTIVE
-				object[11].priority = PRIORITY_ACTIVE
-				object[12].priority = PRIORITY_INACTIVE
-				object[13].priority = PRIORITY_INACTIVE
-				object[14].priority = PRIORITY_INACTIVE
-				object[11].state = display.menu
-				//PlaySfx(SfxName[Fail], 0)
-				break
-			case 3 //extras
-				CallFunction(main.soundconf)				
-				object.state = OtherScriptActive				
-				menu.zigzag.ytarget = 240
-				object[10].priority = PRIORITY_INACTIVE
-				object[11].priority = PRIORITY_INACTIVE
-				object[12].priority = PRIORITY_ACTIVE
-				object[13].priority = PRIORITY_INACTIVE
-				object[14].priority = PRIORITY_INACTIVE
-				inputPress.start = 0
-				inputPress.ButtonA = 0
-				object[12].state = ExtrasControl
-				//PlaySfx(SfxName[Fail], 0)
-				break
-			case 4 //Achievements
-				CallFunction(main.soundconf)				
-				object.state = OtherScriptActive				
-				menu.zigzag.ytarget = 240
-				object[10].priority = PRIORITY_INACTIVE
-				object[11].priority = PRIORITY_INACTIVE
-				object[12].priority = PRIORITY_INACTIVE
-				object[13].priority = PRIORITY_ACTIVE
-				object[14].priority = PRIORITY_INACTIVE
-				inputPress.start = 0
-				inputPress.ButtonA = 0
-				object[13].state = AchieveControl
-				//PlaySfx(SfxName[Fail], 0)
-				break
-			case 5 //Mods
-				//PlaySfx(SfxName[Fail], 0)
-				//break
-				CallFunction(main.soundconf)
-				menu.loadcall = 1
+		PlaySfx(SfxName[Star Post], 0)
+		switch menu.extras.highlight
+			case 0 //Nick Arcade
+				options.gameMode = 10
+				options.attractMode = 0
+				starPostID = 0
+
+				stage.playerListPos = 0
+				player.lives = 3
+				player.score = 0
+				player.scoreBonus = 50000
+				stage.listPos = 1
+
+				stage.activeList = BONUS_STAGE
+				specialStage.emeralds = 0
+				specialStage.listPos = 0
+				player.continues = 0
+				
+				stage.player2Enabled = 0
+				menu.loadcall = 0
 				object.state = Menu.LoadOut
 				break
-			case 6 //Exit
-				CallFunction(main.soundconf)
-				menu.loadcall = 2
+				PlaySfx(SfxName[Fail], 0)
+				break
+			case 1 //Gamble Scramble
+				stage.debugMode = 0
+				stage.playerListPos = 0
+				stage.player2Enabled = 0
+				stage.activeList = REGULAR_STAGE
+				stage.listPos = 7				
+				menu.loadcall = 0
+				options.gameMode = 5
 				object.state = Menu.LoadOut
+				break
+				PlaySfx(SfxName[Fail], 0)
 				break
 		end switch
 	end if
-	if inputPress.buttonB == 1
-		stage.activeList = PRESENTATION_STAGE
-		stage.listPos = 0
-		object.state = Menu.LoadOut
-	end if
-end function
-
-function SaveControl	
+	
+	
 	if menu.sub.ytarget < menu.sub.ymin
 		menu.sub.ytarget = menu.sub.ymin
 	else
@@ -587,706 +288,146 @@ function SaveControl
 		end if
 	end if
 	
-	switch save.substate
-		case 0 //Normal Save Control
-			CheckEqual(inputPress.buttonA, 1)
-			temp0 = checkResult
-			CheckEqual(inputPress.start, 1)
-			temp0 |= checkResult
-			if temp0 == 1
-				CallFunction(PlayRingSound)
-					if save.slot == 0
-						save.substate = 4
-					else
-						arrayPos2 = save.slot
-						arrayPos2--
-						arrayPos2 <<= 3
-						arrayPos2 += 1000
-						CallFunction(LoadforDraw)
-						if draw.new.save == 1
-							save.substate = 5
-						else
-							if draw.zone == 12
-								save.substate = 6
-							else
-								save.substate = 7
-							end if
-						end if
-						
-					end if
-			end if
-			if inputPress.up == 1
-				PlaySfx(SfxName[Score Add], 0)
-				save.slot--
-				while save.slot < 0
-					save.slot += 11
-				loop
-			end if
-			
-			if inputPress.down == 1
-				PlaySfx(SfxName[Score Add], 0)
-				save.slot++
-				save.slot %= 11
-			end if
-			
-			if inputPress.buttonB == 1
-				object.state = Menu.firstcontrol
-				menu.sub.ytarget = 0
-				menu.zigzag.ytarget = 0
-			end if
-			
-			if inputPress.buttonY == 1				
-					arrayPos2 = save.slot
-					arrayPos2--
-					arrayPos2 <<= 3
-					arrayPos2 += 1000
-					CallFunction(LoadforDraw)
-					
-				CheckEqual(save.slot, 0)
-				temp2 = checkResult
-				CheckEqual(draw.new.save, 1)
-				temp2 |= checkResult
-				if temp2 == 1
-					PlaySfx(SfxName[Fail], 0)
-				else
-					PlaySfx(SfxName[Skidding], 0)
-					save.substate = 2
-				end if
-			end if			
-			if inputPress.right == 1
-					arrayPos2 = save.slot
-					arrayPos2--
-					arrayPos2 <<= 3
-					arrayPos2 += 1000
-					CallFunction(LoadforDraw)
-					
-				CheckEqual(save.slot, 0)
-				temp2 = checkResult
-				CheckEqual(draw.new.save, 1)
-				temp2 |= checkResult
-				if temp2 == 1
-					PlaySfx(SfxName[Fail], 0)
-				else
-					PlaySfx(SfxName[Score Add], 0)
-					save.substate = 1
-				end if
-			end if
-			break
-		case 1 //Delete Highlighted
-			CheckEqual(inputPress.buttonB, 1)
-			temp0 = checkResult
-			CheckEqual(inputPress.left, 1)
-			temp0 |= checkResult
-			if temp0 == 1
-				PlaySfx(SfxName[Score Add], 0)
-				save.substate = 0
-			else
-				CheckEqual(inputPress.buttonA, 1)
-				temp0 = checkResult
-				CheckEqual(inputPress.start, 1)
-				temp0 |= checkResult
-				if temp0 == 1
-					PlaySfx(SfxName[Skidding], 0)
-					save.substate = 2
-				end if				
-			end if
-			break
-		case 2 //Deleted Confirm No
-			CheckEqual(inputPress.right, 1)
-			temp0 = checkResult
-			CheckEqual(inputPress.left, 1)
-			temp0 |= checkResult
-			if temp0 == 1
-				PlaySfx(SfxName[Score Add], 0)
-				save.substate = 3
-			else				
-				CheckEqual(inputPress.buttonA, 1)
-				temp0 = checkResult
-				CheckEqual(inputPress.start, 1)
-				temp0 |= checkResult
-				CheckEqual(inputPress.buttonB, 1)
-				temp0 |= checkResult
-				if temp0 == 1
-					PlaySfx(SfxName[Star Post], 0)
-					save.substate = 0
-				end if
-			end if
-			break			
-		case 3 //Deleted Confirm Yes
-			CheckEqual(inputPress.right, 1)
-			temp0 = checkResult
-			CheckEqual(inputPress.left, 1)
-			temp0 |= checkResult
-			if temp0 == 1
-				PlaySfx(SfxName[Score Add], 0)
-				save.substate = 2
-			else				
-				if inputPress.buttonB == 1
-					PlaySfx(SfxName[Star Post], 0)
-					save.substate = 0				
-				else
-					CheckEqual(inputPress.buttonA, 1)
-					temp0 = checkResult
-					CheckEqual(inputPress.start, 1)
-					temp0 |= checkResult
-					if temp0 == 1
-						PlaySfx(SfxName[Lose Rings], 0)
-						save.substate = 0						
-							arrayPos1 = save.Slot
-							arrayPos1--
-							arrayPos1 <<= 3
-							arrayPos1 += 1000
-							saveRAM[arrayPos1] = 0			//Character
-							arrayPos1++
-							saveRAM[arrayPos1] = 0			//Lives
-							arrayPos1++
-							saveRAM[arrayPos1] = 0			//Score
-							arrayPos1++
-							saveRAM[arrayPos1] = 0			//Score Extra Life
-							arrayPos1++
-							saveRAM[arrayPos1] = 0			//ZoneID
-							arrayPos1++
-							saveRAM[arrayPos1] = 0			//Emeralds
-							arrayPos1++
-							saveRAM[arrayPos1] = 0			//SpecialZoneID
-							arrayPos1++
-							saveRAM[arrayPos1] = 0			//Continue
-							WriteSaveRAM()						
-					end if
-				end if
-			end if
-			break
-		case 4 //No save Character
-			if inputPress.buttonB == 1
-				save.substate = 0				
-			else
-				CheckEqual(inputPress.left, 1)
-				temp0 = checkResult
-				CheckEqual(inputPress.up, 1)
-				temp0 |= checkResult
-				if temp0 == 1
-					PlaySfx(SfxName[Score Add], 0)
-					save.charselect--
-					while save.charselect < 0
-						save.charselect += 5
-					loop
-				end if
-				
-				CheckEqual(inputPress.right, 1)
-				temp0 = checkResult
-				CheckEqual(inputPress.down, 1)
-				temp0 |= checkResult
-				if temp0 == 1
-					PlaySfx(SfxName[Score Add], 0)
-					save.charselect++
-					save.charselect %= 5
-				end if
-				
-				CheckEqual(inputPress.buttonA, 1)
-				temp0 = checkResult
-				CheckEqual(inputPress.start, 1)
-				temp0 |= checkResult
-				if temp0 == 1
-					options.gameMode = 0
-					options.attractMode = 0
-					starPostID = 0
-
-					stage.playerListPos = save.charselect
-					player.lives = 3
-					player.continues = 0
-					player.score = 0
-					player.scoreBonus = 50000
-					stage.activeList = REGULAR_STAGE
-					stage.listPos = 0
-					specialStage.emeralds = 0
-					specialStage.listPos = 0
-					
-					if stage.playerListPos < 3
-						stage.player2Enabled = 0
-					end if				
-					menu.loadcall = 0
-					object.state = Menu.LoadOut
-				end if
-			end if
-			break
-		case 5 // New Save Character
-			if inputPress.buttonB == 1
-				save.substate = 0				
-			else
-				CheckEqual(inputPress.left, 1)
-				temp0 = checkResult
-				CheckEqual(inputPress.up, 1)
-				temp0 |= checkResult
-				if temp0 == 1
-					PlaySfx(SfxName[Score Add], 0)
-					save.charselect--
-					while save.charselect < 0
-						save.charselect += 5
-					loop
-				end if
-				
-				CheckEqual(inputPress.right, 1)
-				temp0 = checkResult
-				CheckEqual(inputPress.down, 1)
-				temp0 |= checkResult
-				if temp0 == 1
-					PlaySfx(SfxName[Score Add], 0)
-					save.charselect++
-					save.charselect %= 5
-				end if
-				
-				CheckEqual(inputPress.buttonA, 1)
-				temp0 = checkResult
-				CheckEqual(inputPress.start, 1)
-				temp0 |= checkResult
-				if temp0 == 1
-					arrayPos1 = save.Slot
-					arrayPos1--
-					arrayPos1 <<= 3
-					arrayPos1 += 1000
-					saveRAM[arrayPos1] = save.charselect	//Character
-					arrayPos1++
-					saveRAM[arrayPos1] = 3			//Lives
-					arrayPos1++
-					saveRAM[arrayPos1] = 0			//Score
-					arrayPos1++
-					saveRAM[arrayPos1] = 50000		//Score Extra Life
-					arrayPos1++
-					saveRAM[arrayPos1] = 1			//ZoneID
-					arrayPos1++
-					saveRAM[arrayPos1] = 0			//Emeralds
-					arrayPos1++
-					saveRAM[arrayPos1] = 0			//SpecialZoneID
-					arrayPos1++
-					saveRAM[arrayPos1] = 0			//Continues
-					WriteSaveRAM()
-					save.substate = 7
-				end if
-			end if
-			break
-		case 6 // Complete Save Stage
-			temp0 = inputPress.left
-			temp0 |= inputPress.up
-			if temp0 == 1
-				PlaySfx(SfxName[Score Add], 0)
-				save.complete.stage--
-				if save.complete.stage == 6
-				end if
-				while save.complete.stage < 0
-					save.complete.stage += 11
-				loop
-			end if
-			temp0 = inputPress.right
-			temp0 |= inputPress.down
-			if temp0 == 1
-				PlaySfx(SfxName[Score Add], 0)
-				save.complete.stage++
-				if save.complete.stage == 6
-				end if
-				save.complete.stage %= 11
-			end if
-			if inputPress.buttonB == 1
-				save.substate = 0
-				save.complete.stage = 0
-			end if
-			temp0 = inputPress.buttonA
-			temp0 |= inputPress.start
-			if temp0 == 1
-				CallFunction(PlayRingSound)
-				options.gameMode = 1
-				options.saveSlot = save.slot
-				options.saveSlot--
-				options.attractMode = 0
-				starPostID = 0
-
-				arrayPos1 = options.saveSlot
-				arrayPos1 <<= 3
-				arrayPos1 += 1000
-				stage.playerListPos = saveRAM[arrayPos1]
-				arrayPos1++
-				player.lives = saveRAM[arrayPos1]
-				arrayPos1++
-				player.score = 0
-				arrayPos1++
-				player.scoreBonus = 50000
-				arrayPos1++
-
-				stage.activeList = REGULAR_STAGE
-				GetTableValue(stage.listPos, save.complete.stage, ZoneCompleteLoad)
-					
-				arrayPos1++
-				specialStage.emeralds = saveRAM[arrayPos1]
-				arrayPos1++
-				specialStage.listPos = saveRAM[arrayPos1]
-				arrayPos1++
-				player.continues = saveRAM[arrayPos1]
-				
-				if stage.playerListPos < 3
-					stage.player2Enabled = 0
-				end if				
-				menu.loadcall = 0
-				object.state = Menu.LoadOut
-			end if
-			break
-		case 7 //Load Game
-				CallFunction(PlayRingSound)
-				options.gameMode = 1
-				options.saveSlot = save.slot
-				options.saveSlot--
-				options.attractMode = 0
-				starPostID = 0
-
-				arrayPos1 = options.saveSlot
-				arrayPos1 <<= 3
-				arrayPos1 += 1000
-				stage.playerListPos = saveRAM[arrayPos1]
-				arrayPos1++
-				player.lives = saveRAM[arrayPos1]
-				arrayPos1++
-				player.score = saveRAM[arrayPos1]
-				arrayPos1++
-				player.scoreBonus = saveRAM[arrayPos1]
-				arrayPos1++
-
-				temp0 = saveRAM[arrayPos1]
-					stage.activeList = REGULAR_STAGE
-					temp0 -= 1
-					stage.listPos = temp0
-					
-				arrayPos1++
-				specialStage.emeralds = saveRAM[arrayPos1]
-				arrayPos1++
-				specialStage.listPos = saveRAM[arrayPos1]
-				arrayPos1++
-				player.continues = saveRAM[arrayPos1]
-				
-				if stage.playerListPos < 3
-					stage.player2Enabled = 0
-				end if				
-				menu.loadcall = 0
-				object.state = Menu.LoadOut
-			break
-	end switch
-	
-	temp0 = save.slot
-	temp0 *= save.gap
-	menu.sub.ymax = temp0
-	temp0 -= 150
-	menu.sub.ymin = temp0
-end function
-
-
-
-
-event ObjectMain
-	if menu.zigzag.yoffset == 0
-		object[10].priority = PRIORITY_INACTIVE
-		object[11].priority = PRIORITY_INACTIVE
+	if inputPress.buttonB == 1
+		object[9].priority = PRIORITY_ACTIVE
+		object[9].value14 = 0
+		object[9].value9 = 0
+		object[9].state = Menu.firstcontrol
 	end if
-	CallFunction(menu.holdmovement)
-	CallFunction(object.state)
-	screen.xoffset++
-	if screen.xoffset >= 3970
-		CallFunction(Plane.Snapback)
-	end if
-	CallFunction(YOffsetControl)
-	menu.timer++
-	menu.timer %= 60
-
-		//Slots Time
-		if saveRAM[800] < 100
-			saveRAM[800] = 59999
-			WriteSaveRam()
-		end if
-		
-		slots.milliseconds = saveRAM[800]
-		slots.seconds = 0
-		slots.minutes = 0
-		while slots.milliseconds >= 6000
-			slots.minutes++
-			slots.milliseconds -= 6000
-		loop
-		
-		while slots.milliseconds >= 100
-			slots.seconds++
-			slots.milliseconds -= 100
-		loop
-end event
-
-
-
-
-
-
-
-
-
-
-//Drawing
-
-
-function VersionNumber		
-	temp0 = screen.xsize
-	temp0 -= 140	
-	temp1 = 13
-	temp1 -= menu.zigzag.yoffset
-	temp2 = temp0
-	
-	if versionone > 9
-		temp0 += 10	
-	end if	
-	DrawNumbers(69, temp0, temp1, versionone, 2, 10, 0)
-	temp0 += 10
-	DrawSpriteScreenXY(163, temp0, temp1)
-	
-	temp0 += 4
-	
-	if versiontwo > 9
-		temp0 += 10
-	end if		
-	DrawNumbers(69, temp0, temp1, versiontwo, 2, 10, 0)
-	temp0 += 10
-	DrawSpriteScreenXY(163, temp0, temp1)
-	
-	temp0 += 4
-	
-	if versionthree > 9
-		temp0 += 10
-	end if	
-	DrawNumbers(69, temp0, temp1, versionthree, 2, 10, 0)
-	temp0 += 10
-	DrawSpriteScreenXY(163, temp0, temp1)
-	
-	temp0 += 84
-	
-	DrawNumbers(69, temp0, temp1, versionsub, 9, 10, 1)
 end function
-
-
 
 event ObjectDraw
-
-//Main Menu
-
-	//Semi Transparent Background
-
-	menu.zigzagscroll++
-	menu.zigzagscroll %= 20
-	temp0 = menu.zigzagscroll
-	temp0 >>= 1
-	temp0 += screen.xsize
-	temp1 = screen.ysize
-	temp1 -= 50
-	temp1 -= menu.zigzag.yoffset
-	temp2 = 1
-	temp4 = screen.ysize
-	temp4 <<= 1
-	temp5 = 0
-	while temp0 >= 0
-		DrawRect(temp0, temp1, 1, temp4, 0, 0, 0, 150)
-		DrawRect(temp0, temp1, 1, 1, color7, color7, color7, 255)
-		temp0--
-		temp5++
-		temp1 += temp2
-		temp3 = temp5
-		temp3 %= 5
-		if temp3 == 0
-			FlipSign(temp2)
+	if object[9].value9 != 0
+		if menu.zigzag.yoffset != 240
+			 menu.zigzag.yoffset += 10
 		end if
-	loop
-	
-	//Main Menu Entries
-	menu.page1.xtarget = menu.mainsel
-	menu.page1.xtarget *= 200
-	
-	temp0 = menu.page1.xtarget
-	temp0 -= menu.page1.xoffset
-	Abs(temp0)		
-	
-	if temp0 <= 20
-		menu.page1.xoffset = menu.page1.xtarget
 	else
-		if menu.page1.xoffset < menu.page1.xtarget
-			if temp0 > 600
-				menu.page1.xtarget -= 1200
-				menu.page1.xoffset -= 20	
-			else
-				menu.page1.xoffset += 20
-			end if
-		else
-			if temp0 > 600
-				menu.page1.xtarget += 1200
-				menu.page1.xoffset += 20	
-			else
-				menu.page1.xoffset -= 20
-			end if		
-		end if		
-	end if
-	
-	if menu.page1.xoffset <= -150
-		menu.page1.xtarget += 1400
-		menu.page1.xoffset += 1400
-	end if
-	
-	if menu.page1.xoffset >= 1350
-		menu.page1.xtarget -= 1400
-		menu.page1.xoffset -= 1400
-	end if
-	
-	temp0 = screen.xcenter
-	temp0 -= menu.page1.xoffset
-	temp1 = 200
-	temp1 -= menu.zigzag.yoffset
-	
-	temp0 -= 200
-	DrawSpriteScreenXY(6, temp0, temp1)
-	temp0 += 200
-	DrawSpriteScreenXY(0, temp0, temp1)
-	temp0 += 200
-	DrawSpriteScreenXY(1, temp0, temp1)
-	temp0 += 200
-	DrawSpriteScreenXY(2, temp0, temp1)
-	temp0 += 200
-	DrawSpriteScreenXY(3, temp0, temp1)
-	temp0 += 200
-	DrawSpriteScreenXY(4, temp0, temp1)
-	temp0 += 200
-	DrawSpriteScreenXY(5, temp0, temp1)
-	temp0 += 200
-	DrawSpriteScreenXY(6, temp0, temp1)
-	temp0 += 200
-	DrawSpriteScreenXY(0, temp0, temp1)
-		
-	//Highlighter
-	if menu.page1.xtarget == menu.page1.xoffset
-		temp0 = menu.mainsel
-		temp0 += 7
-		DrawSpriteScreenXY(temp0, screen.xcenter, temp1)
-	end if	
-	
-	//Selector bars
-	temp0 = 0
-	temp1 += 30
-	while temp0	< 7
-		temp2 = temp0
-		temp2 -= 3
-		temp2 *= 16
-		temp2 += screen.xcenter
-		temp2 -= 4
-		
-		if temp0 == menu.mainsel
-			temp1 -= 4
-			switch temp0
-			case 0
-				DrawSpriteScreenXY(376, temp2, temp1)
-				break
-			case 1
-				DrawSpriteScreenXY(377, temp2, temp1)
-				break
-			case 2
-				DrawSpriteScreenXY(378, temp2, temp1)
-				break
-			case 3
-				DrawSpriteScreenXY(379, temp2, temp1)
-				break
-			case 4
-				DrawSpriteScreenXY(380, temp2, temp1)
-				break
-			case 5
-				DrawSpriteScreenXY(381, temp2, temp1)
-				break
-			case 6
-				DrawSpriteScreenXY(382, temp2, temp1)
-				break
-			end switch
-			temp1 += 4
-		else
-			switch temp0
-			case 0
-				DrawSpriteScreenXY(383, temp2, temp1)
-				break
-			case 1
-				DrawSpriteScreenXY(384, temp2, temp1)
-				break
-			case 2
-				DrawSpriteScreenXY(385, temp2, temp1)
-				break
-			case 3
-				DrawSpriteScreenXY(386, temp2, temp1)
-				break
-			case 4
-				DrawSpriteScreenXY(387, temp2, temp1)
-				break
-			case 5
-				DrawSpriteScreenXY(388, temp2, temp1)
-				break
-			case 6
-				DrawSpriteScreenXY(389, temp2, temp1)
-				break
-			end switch
+		if menu.zigzag.yoffset != 0
+			 menu.zigzag.yoffset -= 10
 		end if
-		temp0++
-	loop	
-	
-	//CallFunction(CloudDebug)
-
-	CallFunction(VersionNumber)
-	
-	//DrawNumbers(69, 100, 40, menu.sub.yoffset, 5, 10, 0)
-	//DrawNumbers(69, 100, 80, menu.sub.ytarget, 5, 10, 0)
-
-	temp0 -= screen.xsize
-	temp0 += 25
-	temp1 -= 10
-	DrawSpriteScreenXY(390, temp0, temp1)
+	end if
+	CallFunction(ExtrasDraw)
 end event
 
-
-
-
-
-
-
-
-
-//Startup
-
-function ResetPal
+function ExtrasDraw	
+	temp0 = screen.ycenter
+	temp0 += 125
+	temp0 -= menu.zigzag.yoffset
+	temp0 <<= 1
+	if screen.xsize == 320	
+		DrawSpriteScreenXY(3, 50, temp0)
+	else
+		DrawSpriteScreenXY(3, screen.xcenter, temp0)
+	end if
+	temp0 += options.gap
+	temp0 += options.gap
+	
+	
+	//Draw First Extra
+	temp7 = 0
 	temp1 = 0
-	GetTableValue(temp0, temp1, Palette_Reset)
-	SetPaletteEntry(0, 2, temp0)
-	temp1++
-	GetTableValue(temp0, temp1, Palette_Reset)
-	SetPaletteEntry(0, 3, temp0)
-	temp1++
-	GetTableValue(temp0, temp1, Palette_Reset)
-	SetPaletteEntry(0, 4, temp0)
-	temp1++
-	GetTableValue(temp0, temp1, Palette_Reset)
-	SetPaletteEntry(0, 5, temp0)
-	temp1++
-	GetTableValue(temp0, temp1, Palette_Reset)
-	SetPaletteEntry(0, 13, temp0)
-	temp1++
-	GetTableValue(temp0, temp1, Palette_Reset)
-	SetPaletteEntry(0, 17, temp0)
-	temp1++
-	GetTableValue(temp0, temp1, Palette_Reset)
-	SetPaletteEntry(0, 18, temp0)
-	temp1++
-	GetTableValue(temp0, temp1, Palette_Reset)
-	SetPaletteEntry(0, 16, temp0)
-	temp1++
-	GetTableValue(temp0, temp1, Palette_Reset)
-	SetPaletteEntry(0, 26, temp0)
-	temp1++
-	GetTableValue(temp0, temp1, Palette_Reset)
-	SetPaletteEntry(0, 27, temp0)
-	temp1++
-	GetTableValue(temp0, temp1, Palette_Reset)
-	SetPaletteEntry(0, 28, temp0)
-end function
+	temp6 = screen.ysize
+	temp6 -= temp0
+	
+	while temp1 < screen.xsize
+		if temp7 < extras.count
+			if temp7 == menu.extras.highlight			
+				SetActivePalette(1, 0, screen.ysize)
+				temp2 = temp7
+				temp2 += 358
+				DrawSpriteScreenXY(temp2, temp1, temp0)
+				SetActivePalette(0, 0, screen.ysize)			
+			end if
+				temp2 = temp7
+				temp2 += 352
+				DrawSpriteScreenXY(temp2, temp1, temp0)
+		else
+			DrawSpriteScreenXY(364, temp1, temp0)			
+		end if		
+		switch temp7
+			case 0
+				temp0 -= 15
+				DrawSpriteScreenXY(365, temp1, temp0)
+				temp3 = temp1
+				temp3 += 80
+				temp4 = temp0
+				temp4 += 30
+				DrawNumbers(69, temp3, temp4, saveRAM[620], 3, 10, 0)
+				temp0 += 15
+				break
+			case 1
+				temp0 -= 15
+				DrawSpriteScreenXY(372, temp1, temp0)
+				temp3 = temp1
+				temp3 += 80
+				temp4 = temp0
+				temp4 += 30
+				
+				temp3 += 10
+				DrawNumbers(69, temp3, temp4, slots.milliseconds, 2, 10, 1)
+				temp3 -= 16
+				DrawSpriteScreenXY(373, temp3, temp4)
+				temp3 -= 9
+				DrawNumbers(69, temp3, temp4, slots.seconds, 2, 10, 1)
+				temp3 -= 14
+				DrawSpriteScreenXY(374, temp3, temp4)
+				temp3 -= 10
+				DrawNumbers(69, temp3, temp4, slots.minutes, 2, 10, 0)
 
+				temp4 += 175
+				temp3 += 30
+
+				if saveRAM[801] >= 0
+					DrawNumbers(69, temp3, temp4, saveRAM[801], 6, 10, 0)
+				else
+					saveRAM[802] = saveRAM[801]
+					FlipSign(saveRAM[802])
+					temp3 += 10
+					DrawNumbers(69, temp3, temp4, saveRAM[802], 6, 10, 0)
+					temp3 -= 10
+					while saveRAM[802] >= 10
+						temp3 -= 10
+						saveRAM[802] /= 10
+					loop
+					DrawSpriteScreenXY(375, temp3, temp4) //minus sign
+				end if
+
+				temp4 -= 175
+
+				temp0 += 15
+				temp4 += 15
+				break
+		end switch
+		DrawRect(temp1, temp0, 100, 1, color7, color7, color7, 255)
+		DrawRect(temp1, temp0, 1, temp6, color7, color7, color7, 255)
+	temp7++
+	temp1 += 100
+	loop
+	if screen.xsize <= 320
+		temp4 -= 80
+		DrawSpriteScreenXY(370, 195,temp4)			
+		temp4 += 30
+		DrawNumbers(69, 305, temp4, saveRAM[997], 3, 10, 0)
+		temp4 += 10
+		DrawNumbers(69, 305, temp4, saveRAM[998], 3, 10, 0)
+	else
+		if screen.xsize == 384
+			temp4 -= 80
+			DrawSpriteScreenXY(370, 260,temp4)			
+			temp4 += 30
+			DrawNumbers(69, 370, temp4, saveRAM[997], 3, 10, 0)
+			temp4 += 10
+			DrawNumbers(69, 370, temp4, saveRAM[998], 3, 10, 0)
+		else
+			temp4 -= 80
+			DrawSpriteScreenXY(370, 300,temp4)			
+			temp4 += 30
+			DrawNumbers(69, 410, temp4, saveRAM[997], 3, 10, 0)
+			temp4 += 10
+			DrawNumbers(69, 410, temp4, saveRAM[998], 3, 10, 0)
+		end if
+	end if
+end function
 
 event ObjectStartup
 	CallNativeFunction(GetWindowScale)
@@ -1819,84 +960,66 @@ event ObjectStartup
 	SpriteFrame(0, 0, 57, 7, 499, 201) //431 Hold A
 	SpriteFrame(0, 0, 78, 7, 415, 209) //432 Deleting
 	SpriteFrame(0, 0, 73, 7, 494, 209) //433 Deleting
+
 	
 	CallFunction(ResetPal)
 	
-	SetMusicTrack("SweetDream.ogg", 0, 1)
 	LoadPalette("SaveSlot.act", 1, 0, 0, 256)
 	LoadPalette("AchieveIcon.act", 2, 0, 0, 256)
 	
-	CallFunction(BlackandWhite)
-
-	object[9].type = TypeName[Main Menu]
-	object[9].priority = PRIORITY_ACTIVE
-	object[9].drawOrder = 5
-	object[9].state = Menu.LoadIn
-	object[9].priority = PRIORITY_ACTIVE
-	object[9].value17 = 3
-
-	object[10].type = TypeName[Game Modes]
-	object[10].drawOrder = 6
-	object[10].priority = PRIORITY_INACTIVE
-
-	object[11].type = TypeName[Options]
-	object[11].drawOrder = 6
-	object[11].priority = PRIORITY_INACTIVE
-
-	object[12].type = TypeName[Extras]
-	object[12].drawOrder = 6
-	object[12].priority = PRIORITY_INACTIVE
-
-	object[13].type = TypeName[Achievements]
-	object[13].drawOrder = 6
-	object[13].priority = PRIORITY_INACTIVE
-
-	object[14].type = TypeName[Save Select]
-	object[14].drawOrder = 6
-	object[14].priority = PRIORITY_INACTIVE
-
-	object[15].type = TypeName[Mod Menu]
-	object[15].priority = PRIORITY_INACTIVE
-	
-	object[50].type = TypeName[Menu Tornado]
-	object[50].value3 = screen.xsize 
-	object[50].value3 /= 3 
-	object[50].value3 <<= 16
-	object[50].value4 = screen.ycenter
-	object[50].value4 <<= 16
-	object[50].drawOrder = 2
-	object[50].priority = PRIORITY_ACTIVE
-	object[50].value7 = saved.Title 
-	
-	//Clouds
-	
 	temp0 = 0
-	arrayPos0 = 32
-	while temp0 < 8
-		GetTableValue(temp1, temp0, Cloud_Type)
-		ResetObjectEntity(arrayPos0, TypeName[Menu Cloud], temp1, 0, 0)
+	while temp0 < 256
+		GetPaletteEntry(2, temp0, temp1)
 		
-		GetTableValue(object[arrayPos0].xpos, temp0, Cloud_X)
-		object[arrayPos0].value1 = object[arrayPos0].xpos
-		GetTableValue(object[arrayPos0].ypos, temp0, Cloud_Y)
-		object[arrayPos0].xpos <<= 16
-		object[arrayPos0].ypos <<= 16
-		object[arrayPos0].drawOrder = 2
-		switch temp1
-		case 0
-			object[arrayPos0].xvel = -0xC000
-			break
-		case 1
-			object[arrayPos0].xvel = -0x8000
-			break
-		case 2
-			object[arrayPos0].xvel = -0x4000
-			break
-		end switch
+		math.red = temp1
+		math.red &= 0xFF0000
+		math.red >>= 16
 		
-		arrayPos0++
-		temp0++	
+		math.green = temp1
+		math.green &= 0x00FF00
+		math.green >>= 8
+		
+		math.blue = temp1
+		math.blue &= 0x0000FF
+		
+		if math.grey == 1
+			math.red *= weight.red
+			math.green *= weight.green
+			math.blue *= weight.blue
+			
+			temp1 = math.blue
+			temp1 += math.green
+			temp1 += math.red
+			temp2 = weight.red
+			temp2 += weight.green
+			temp2 += weight.blue
+			temp1 /= temp2
+			
+		else
+			temp1 = math.blue
+			temp1 += math.green
+			temp1 += math.red
+			temp1 /= 3
+		
+		end if
+		
+		temp1 &= 0xFF
+		temp2 = temp1
+		temp2 <<= 8
+		temp2 += temp1
+		temp2 <<= 8
+		temp2 += temp1
+		
+		SetPaletteEntry(3, temp0, temp2)
+		temp0++
 	loop
-	
-	stage[0].activeLayer = 1
+end event
+
+event RSDKDraw
+	DrawSprite(0)
+end event
+
+event RSDKLoad
+	LoadSpriteSheet("Global/Display.gif")
+	SpriteFrame(-16, -16, 32, 32, 223, 172)
 end event
