@@ -93,9 +93,9 @@ event ObjectMain
 					end if
 				end if
 				while char.select < 0
-					char.select += 3
+					char.select += 4
 				loop
-				char.select %= 3
+				char.select %= 4
 				
 				CheckEqual(inputPress.start, 1)
 				temp0 = checkResult
@@ -208,8 +208,13 @@ event ObjectDraw
 				specialStage.listPos = 0
 				specialStage.emeralds = 0
 				specialStage.nextZone = 0
-				stage.playerListPos = char.select
-				saveRAM[620] = char.select
+				if char.select == 3
+					stage.playerListPos = 5
+					saveRAM[620] = 5
+				else
+					stage.playerListPos = char.select
+					saveRAM[620] = char.select
+				end if
 				WriteSaveRAM()
 				LoadStage()
 			end if
@@ -416,18 +421,27 @@ event ObjectDraw
 		temp3 -= 106
 		temp0 = char.select	
 		temp0 += 52
+		if char.select == 3
+			temp0 += 30
+		end if
 		DrawSpriteScreenXY(temp0, temp3, screen.ycenter)
 		temp0 -= 3
+		if char.select == 3
+			temp0 += 4
+		end if
 		DrawSpriteScreenXY(temp0, temp3, screen.ycenter)
 		temp0 +=30
 		temp3 += 106
+		if char.select == 3
+			temp0 -= 34
+		end if
 		DrawSpriteScreenXY(temp0, temp3, 53)
 
 		//arrows
 		temp3=245
 		temp3 += arcade.offset
-		DrawSpriteScreenXY(82, temp3, screen.ycenter)
 		DrawSpriteScreenXY(83, temp3, screen.ycenter)
+		DrawSpriteScreenXY(84, temp3, screen.ycenter)
 
 		//Insert Ring
 		temp0 = screen.xsize
@@ -612,15 +626,19 @@ event ObjectStartup
 	SpriteFrame(-2, -9, 16, 18, 424, 173) //77 Ring7
 
 	//Character Menu
-	SpriteFrame(-60, -35, 60, 24, 28, 67) //78 Grey Bois
-	SpriteFrame(-60, -35, 17, 24, 28, 43) //79 Sonic Highlighted
-	SpriteFrame(-40, -35, 16, 23, 62, 43) //80 Tails Highlighted
-	SpriteFrame(-20, -35, 17, 24, 96, 43) //81 Knuckles Highlighted
+	SpriteFrame(-80, -35, 80, 24, 28, 67) //78 Grey Bois
+	SpriteFrame(-80, -35, 17, 24, 28, 43) //79 Sonic Highlighted
+	SpriteFrame(-60, -35, 16, 23, 62, 43) //80 Tails Highlighted
+	SpriteFrame(-40, -35, 16, 23, 96, 43) //81 Knuckles Highlighted
+	SpriteFrame(-20, -36, 16, 24, 130, 42) //82 Knuckles Highlighted
 
-	SpriteFrame(0, -58, 22,7, 89, 67)  //82 Left Arrow
-	SpriteFrame(145, 65, 22,7, 89, 75)  //83 Right Arrow
-	
-	
+	SpriteFrame(0, -58, 22,7, 164, 52)  //82 Left Arrow
+	SpriteFrame(145, 65, 22,7, 164, 60)  //83 Right Arrow
+
+	SpriteFrame(-40, -76, 107, 157, 481, 351) //84 Amy Negative	
+	SpriteFrame(-45, -80, 107, 157, 481, 193) //85 Amy
+	SpriteFrame(0, -3, 15, 14, 33, 27) //30  Amy (Head)
+
 	
 	SetMusicTrack("Arcade.ogg", 0, 1)
 	

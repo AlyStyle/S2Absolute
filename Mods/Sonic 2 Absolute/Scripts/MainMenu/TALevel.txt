@@ -51,7 +51,7 @@ event ObjectDraw
 	object.value13 = 21
 	temp2 = 10
 	foreach (TypeName[Time Attack Screen], arrayPos0, ALL_ENTITIES)
-		if object[arrayPos0].value10 == 3
+		if object[arrayPos0].value10 == 4
 			temp4 = 9
 		else
 			temp4 = 10

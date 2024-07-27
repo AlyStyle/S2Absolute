@@ -99,7 +99,7 @@ event ObjectDraw
 	end if	
 	DrawSpriteScreenXY(object.propertyValue, temp1, temp0)
 	temp2 = object.propertyValue
-	temp2 += 4
+	temp2 += 5
 	temp0 = object.value3
 	temp0 += 160
 	temp1 = object.value1
@@ -116,23 +116,25 @@ end event
 event ObjectStartup
 	LoadSpriteSheet("Menus/TimeAttackScreen.gif")
 	
-	SpriteFrame(-76, -66, 151, 132, 374, 1) //0 Sonic
-	SpriteFrame(-63, -64, 126, 128, 526, 1) //1 Tails
-	SpriteFrame(-100, -65, 200, 129, 653, 1) //2 Knuckles
+	SpriteFrame(-76, -46, 151, 132, 374, 1) //0 Sonic
+	SpriteFrame(-63, -44, 126, 128, 526, 1) //1 Tails
+	SpriteFrame(-100, -45, 200, 129, 653, 1) //2 Knuckles
+	SpriteFrame(-52, -56, 107, 157, 620, 134) //3 Amy
 	if screen.xsize == 320
-		SpriteFrame(-82, -82, 167, 172, 452, 134) //3 Super Sonic
+		SpriteFrame(-82, -72, 167, 172, 452, 134) //4 Super Sonic
 	else
-		SpriteFrame(-92, -82, 167, 172, 452, 134) //3 Super Sonic
+		SpriteFrame(-92, -72, 167, 172, 452, 134) //4 Super Sonic
 	end if
 	
 	//Names
-	SpriteFrame(-42, -110, 84, 40, 190, 1) //4 Sonic
-	SpriteFrame(-42, -110, 84, 40, 275, 1) //5 Tails
-	SpriteFrame(-64, -110, 127, 40, 222, 42) //6 Knuckles
-	SpriteFrame(-74, -110, 167, 29, 177, 165) //7 Super Sonic	
+	SpriteFrame(-42, -110, 84, 40, 190, 1) //5 Sonic
+	SpriteFrame(-42, -110, 84, 40, 275, 1) //6 Tails
+	SpriteFrame(-64, -110, 127, 40, 222, 42) //7 Knuckles
+	SpriteFrame(-29, -110, 45, 39, 345, 165) //8 Amy
+	SpriteFrame(-94, -110, 167, 29, 177, 165) //9 Super Sonic	
 	
 	temp0 = 0
-	while temp0 < 4 //Number of menu entries
+	while temp0 < 5 //Number of menu entries
 		CreateTempObject(TypeName[Character Portrait], temp0, 0, 0)
 		object[tempObjectPos].value0 = -300
 		object[tempObjectPos].value1 = -300
