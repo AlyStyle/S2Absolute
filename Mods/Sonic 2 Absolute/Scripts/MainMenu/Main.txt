@@ -492,11 +492,8 @@ function Menu.firstcontrol
 			case 0 //Save Select
 				CallFunction(main.soundconf)				
 				object.state = OtherScriptActive				
+				object[14].value9 = 240
 				menu.zigzag.ytarget = 240
-				object[10].priority = PRIORITY_INACTIVE
-				object[11].priority = PRIORITY_INACTIVE
-				object[12].priority = PRIORITY_INACTIVE
-				object[13].priority = PRIORITY_INACTIVE
 				object[14].priority = PRIORITY_ACTIVE
 				inputPress.start = 0
 				inputPress.ButtonA = 0
@@ -505,13 +502,10 @@ function Menu.firstcontrol
 				break
 			case 1 //Game Modes
 				CallFunction(main.soundconf)				
-				object.state = OtherScriptActive				
+				object.state = OtherScriptActive	
+				object[10].value9 = 240			
 				menu.zigzag.ytarget = 240
 				object[10].priority = PRIORITY_ACTIVE
-				object[11].priority = PRIORITY_INACTIVE
-				object[12].priority = PRIORITY_INACTIVE
-				object[13].priority = PRIORITY_INACTIVE
-				object[14].priority = PRIORITY_INACTIVE
 				inputPress.start = 0
 				inputPress.ButtonA = 0
 				object[10].state = ModesControl
@@ -519,25 +513,19 @@ function Menu.firstcontrol
 				break
 			case 2 //Options
 				CallFunction(main.soundconf)				
-				object.state = OtherScriptActive				
+				object.state = OtherScriptActive	
+				object[11].value9 = 240			
 				menu.zigzag.ytarget = 240
-				object[10].priority = PRIORITY_INACTIVE
 				object[11].priority = PRIORITY_ACTIVE
-				object[12].priority = PRIORITY_INACTIVE
-				object[13].priority = PRIORITY_INACTIVE
-				object[14].priority = PRIORITY_INACTIVE
 				object[11].state = display.menu
 				//PlaySfx(SfxName[Fail], 0)
 				break
 			case 3 //extras
 				CallFunction(main.soundconf)				
-				object.state = OtherScriptActive				
+				object.state = OtherScriptActive	
+				object[12].value9 = 240			
 				menu.zigzag.ytarget = 240
-				object[10].priority = PRIORITY_INACTIVE
-				object[11].priority = PRIORITY_INACTIVE
 				object[12].priority = PRIORITY_ACTIVE
-				object[13].priority = PRIORITY_INACTIVE
-				object[14].priority = PRIORITY_INACTIVE
 				inputPress.start = 0
 				inputPress.ButtonA = 0
 				object[12].state = ExtrasControl
@@ -545,13 +533,10 @@ function Menu.firstcontrol
 				break
 			case 4 //Achievements
 				CallFunction(main.soundconf)				
-				object.state = OtherScriptActive				
+				object.state = OtherScriptActive
+				object[13].value9 = 240				
 				menu.zigzag.ytarget = 240
-				object[10].priority = PRIORITY_INACTIVE
-				object[11].priority = PRIORITY_INACTIVE
-				object[12].priority = PRIORITY_INACTIVE
 				object[13].priority = PRIORITY_ACTIVE
-				object[14].priority = PRIORITY_INACTIVE
 				inputPress.start = 0
 				inputPress.ButtonA = 0
 				object[13].state = AchieveControl

@@ -205,7 +205,40 @@ private table Palette_Reset
 	0x600020, 0xC00020, 0xE04060
 end table
 
-
+function YOffsetControl
+	if menu.zigzag.yoffset == menu.zigzag.ytarget
+	else
+		temp0 = menu.zigzag.yoffset
+		temp0 -= menu.zigzag.ytarget
+		Abs(temp0)
+		if temp0 <= menu.zigzag.yspeed
+			menu.zigzag.yoffset = menu.zigzag.ytarget
+			object[9].priority = PRIORITY_ACTIVE_PAUSED
+		else
+			if menu.zigzag.yoffset < menu.zigzag.ytarget
+				menu.zigzag.yoffset += menu.zigzag.yspeed
+			else
+				menu.zigzag.yoffset -= menu.zigzag.yspeed
+			end if
+		end if
+	end if
+		
+	if menu.sub.yoffset == menu.sub.ytarget
+	else
+		temp0 = menu.sub.yoffset
+		temp0 -= menu.sub.ytarget
+		Abs(temp0)
+		if temp0 <= menu.sub.yspeed
+			menu.sub.yoffset = menu.sub.ytarget
+		else
+			if menu.sub.yoffset < menu.sub.ytarget
+				menu.sub.yoffset += menu.sub.yspeed
+			else
+				menu.sub.yoffset -= menu.sub.yspeed
+			end if
+		end if
+	end if
+end function
 
 function Modes.LoadOut
 	if menu.fade < 320
@@ -220,6 +253,7 @@ end function
 
 event ObjectMain				
 	CallFunction(object.state)
+	CallFunction(YOffsetControl)
 end event
 
 function ExtrasControl	
@@ -289,6 +323,7 @@ function ExtrasControl
 	end if
 	
 	if inputPress.buttonB == 1
+		menu.zigzag.ytarget = 0
 		object[9].priority = PRIORITY_ACTIVE
 		object[9].value14 = 0
 		object[9].value9 = 0
@@ -297,14 +332,8 @@ function ExtrasControl
 end function
 
 event ObjectDraw
-	if object[9].value9 != 0
-		if menu.zigzag.yoffset != 240
-			 menu.zigzag.yoffset += 10
-		end if
-	else
-		if menu.zigzag.yoffset != 0
-			 menu.zigzag.yoffset -= 10
-		end if
+	if menu.zigzag.yoffset == 0
+		object.priority = PRIORITY_INACTIVE
 	end if
 	CallFunction(ExtrasDraw)
 end event
