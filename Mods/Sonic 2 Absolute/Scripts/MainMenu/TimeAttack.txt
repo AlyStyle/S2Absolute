@@ -295,7 +295,7 @@ function AllTimesList
 	temp3 += 22
 	DrawNumbers(0, temp3, temp2, total.millis, 2, 8, 1)
 
-	if select.char == 4
+	if select.char == 3
 		DrawRect(temp7, 195, 126, 12, 0,0,255, 255)
 	end if
 end function
@@ -350,12 +350,16 @@ event ObjectMain
 			temp0 |= inputPress.left
 			if temp0 == 1
 				select.char--
+
+				if saveRAM[414] == 0
+					if select.char == 3
+						PlaySfx(SfxName[Star Post], 0)
+						select.char = 2
+					end if
+				end if
+
 				while select.char < 0
-				if saveRAM[414] == 1
 					select.char += 5
-				else
-					select.char += 4
-				end if	
 				loop
 				
 			else
@@ -363,11 +367,14 @@ event ObjectMain
 				temp1 |= inputPress.right
 				if temp1 == 1
 					select.char++
-					if saveRAM[414] == 1
-						select.char %= 5
-					else
-						select.char %= 4
-					end if			
+
+					if saveRAM[414] == 0
+						if select.char == 3
+							select.char = 4
+						end if
+					end if
+
+					select.char %= 5			
 				end if			
 			end if
 			
@@ -386,7 +393,7 @@ event ObjectMain
 				time.slide = 150
 				select.level--
 				while select.level < 0
-				if select.char == 4
+				if select.char == 3
 					select.level += 18
 				else
 					select.level += 19
@@ -396,7 +403,7 @@ event ObjectMain
 				if inputPress.right == 1
 				time.slide = 150
 				select.level++
-				if select.char == 4
+				if select.char == 3
 					select.level %= 18
 				else
 					select.level %= 19
@@ -417,7 +424,7 @@ event ObjectMain
 							default
 								select.level -= 2
 								if select.level < 0
-									if select.char == 4
+									if select.char == 3
 										select.level = 17
 									else
 										select.level = 18
@@ -434,7 +441,7 @@ event ObjectMain
 									select.level = 17
 									break
 								case 17
-									if select.char == 4
+									if select.char == 3
 										select.level = 0
 									else
 										select.level = 18
@@ -453,7 +460,7 @@ event ObjectMain
 						
 			temp0 = inputPress.buttonA
 			temp0 |= inputPress.start
-				if select.char == 4
+				if select.char == 3
 					if select.level == 18
 						select.level = 0
 					end if
@@ -480,11 +487,8 @@ event ObjectMain
 				starPostID = 0
 				stage.debugMode = 0
 				stage.playerListPos = select.char
-				if select.char == 4
-					stage.playerListPos = 100
-				end if
 				if select.char == 3
-					stage.playerListPos = 5
+					stage.playerListPos = 100
 				end if
 				player.lives = 3
 				player.continues = 0
@@ -729,7 +733,6 @@ event ObjectStartup
 	SpriteFrame(0,0, 16, 23, 1, 270) //32 smoll sonic
 	SpriteFrame(0,0, 16, 23, 35, 270) //33
 	SpriteFrame(0,0, 16, 23, 1, 294) //34
-	SpriteFrame(0,0, 16, 23, 1, 270) //35 smoll sonic
 	SpriteFrame(0,0, 16, 23, 1, 270) //35 smoll sonic
 	
 	SetMusicTrack("Results.ogg", 0, 1)
