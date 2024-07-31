@@ -98,6 +98,9 @@ event ObjectMain
 					if options.vsMode == 0
 						object.value9 = 4
 						object.value9 += stage.playerListPos
+						if stage.playerListPos == 5
+							object.value9 = 7
+						end if
 					else
 						object.value9 = 4
 					end if
@@ -195,6 +198,7 @@ event ObjectStartup
 	SpriteFrame(-48, -24, 96, 48, 415, 122)
 	SpriteFrame(-48, -24, 96, 48, 415, 171)
 	SpriteFrame(-48, -24, 96, 48, 415, 220)
+	SpriteFrame(-48, -24, 96, 48, 154, 377)
 end event
 
 event RSDKDraw

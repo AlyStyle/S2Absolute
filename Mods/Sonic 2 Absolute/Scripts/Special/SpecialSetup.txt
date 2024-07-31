@@ -97,8 +97,16 @@ event ObjectStartup
 	object[10].type = TypeName[HUD]
 	object[10].priority = PRIORITY_ACTIVE
 	object[10].drawOrder = 6
-	if stage.playerListPos > 2
+	if stage.playerListPos == 3
 		stage.playerListPos = 0
+		stage.player2Enabled = 1
+	end if
+	if stage.playerListPos == 4
+		stage.playerListPos = 2
+		stage.player2Enabled = 1
+	end if
+	if stage.playerListPos == 6
+		stage.playerListPos = 5
 		stage.player2Enabled = 1
 	end if
 	if options.vsMode == 0

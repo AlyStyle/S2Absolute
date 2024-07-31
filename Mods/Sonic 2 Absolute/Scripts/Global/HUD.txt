@@ -277,6 +277,9 @@ function LivesHud
 	if temp1 == 1	
 		temp0 = stage.playerListPos
 		temp0 += 15
+		if stage.playerlistpos == 5
+			temp0 += 44
+		end if
 		temp1 = 216
 		temp1 -= achieve.yoffset
 		
@@ -292,6 +295,9 @@ function LivesHud
 		
 		temp0 += 6
 		temp1 += 1
+		if stage.playerlistpos == 5
+			temp0 -= 5
+		end if
 		DrawSpriteScreenXY(temp0, 33, temp1)
 		temp1 += 9
 		DrawSpriteScreenXY(20, 38, temp1)
@@ -817,6 +823,10 @@ event ObjectStartup
 	SpriteFrame(0, 0, 8, 11, 19, 74) //61 A
 	SpriteFrame(0, 0, 8, 11, 28, 74) //62 B
 	SpriteFrame(0, 0, 40, 11, 260, 149) //63 Layer
+
+	//Amy
+	SpriteFrame(0, 0, 16, 16, 257, 102) //64 Amy Icon
+	SpriteFrame(0, 0, 23, 7,  257, 119) //65 Sonic Name
 	
 	
 	

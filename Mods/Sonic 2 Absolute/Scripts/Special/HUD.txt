@@ -108,6 +108,9 @@ event ObjectDraw
 		object.value2 -= 104
 		object.frame = stage.playerListPos
 		object.frame += 10
+		if stage.playerListPos == 5
+			object.frame += 3
+		end if
 		CallFunction(HUD_Function10)
 		temp0 = 0
 		object.value2 = screen.xcenter
@@ -156,6 +159,8 @@ event ObjectStartup
 	SpriteFrame(0, 0, 48, 24, 397, 1)
 	SpriteFrame(-20, 0, 40, 28, 250, 26)
 	SpriteFrame(-8, 0, 16, 8, 442, 42)
+
+	SpriteFrame(0, 0, 48, 24, 456, 1)
 end event
 
 event RSDKDraw

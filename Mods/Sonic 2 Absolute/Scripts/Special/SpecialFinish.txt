@@ -478,6 +478,9 @@ event ObjectStartup
 	case 2
 		SpriteFrame(-96, 0, 117, 15, 151, 361)
 		break
+	case 5
+		SpriteFrame(-96, 0, 92, 15, 154, 426)
+		break
 	default
 		SpriteFrame(-96, 0, 92, 15, 176, 345)
 		break

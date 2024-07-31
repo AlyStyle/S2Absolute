@@ -131,7 +131,7 @@ function PlayerObject_ProcessDrawing
 		scene3D.vertexCount += 4
 		scene3D.faceCount++
 		if object.value4 == 16
-			if object.animation == 0
+			//if object.animation == 0
 				arrayPos0++
 				arrayPos1++
 				faceBuffer[arrayPos1].flag = FACE_SPRITE_3D
@@ -148,7 +148,7 @@ function PlayerObject_ProcessDrawing
 				vertexBuffer[arrayPos0].z = vertexBuffer[arrayPos2].z
 				vertexBuffer[arrayPos0].u = object.value17
 				vertexBuffer[arrayPos0].u >>= 2
-				vertexBuffer[arrayPos0].u += 48
+				vertexBuffer[arrayPos0].u += 64
 				vertexBuffer[arrayPos0].v = 0
 				arrayPos0++
 				faceBuffer[arrayPos1].c = arrayPos0
@@ -164,7 +164,7 @@ function PlayerObject_ProcessDrawing
 				vertexBuffer[arrayPos0].z = vertexBuffer[arrayPos2].z
 				scene3D.vertexCount += 4
 				scene3D.faceCount++
-			end if
+			//end if
 		end if
 	end if
 	if object.value23 > 0
@@ -684,6 +684,7 @@ event ObjectStartup
 	SpriteFrame(-16, -28, 32, 56, 34, 125)
 	SpriteFrame(-16, -28, 32, 56, 67, 125)
 	SpriteFrame(-16, -28, 32, 56, 100, 125)
+
 	SpriteFrame(-16, -20, 32, 40, 133, 67)
 	SpriteFrame(-16, -20, 32, 40, 166, 67)
 	SpriteFrame(-16, -20, 32, 40, 133, 67)
@@ -724,6 +725,27 @@ event ObjectStartup
 	SpriteFrame(-16, -20, 32, 40, 166, 141)
 	SpriteFrame(-16, -20, 32, 40, 133, 141)
 	SpriteFrame(-16, -20, 32, 40, 166, 141)
+
+	// Running - Amy
+	SpriteFrame(-15, -26, 30, 52, 1, 373)
+	SpriteFrame(-15, -26, 30, 52, 32, 373)
+	SpriteFrame(-15, -26, 30, 52, 63, 373)
+	SpriteFrame(-15, -26, 30, 52, 94, 373)
+	SpriteFrame(-15, -26, 30, 52, 1, 426)
+	SpriteFrame(-15, -26, 30, 52, 32, 426)
+	SpriteFrame(-15, -26, 30, 52, 63, 426)
+	SpriteFrame(-15, -26, 30, 52, 94, 426)
+
+	// Jumping - Amy
+	SpriteFrame(-14, -16, 28, 32, 125, 377)
+	SpriteFrame(-14, -16, 28, 32, 125, 410)
+	SpriteFrame(-14, -16, 28, 32, 125, 377)
+	SpriteFrame(-14, -16, 28, 32, 125, 410)
+	SpriteFrame(-14, -16, 28, 32, 125, 377)
+	SpriteFrame(-14, -16, 28, 32, 125, 410)
+	SpriteFrame(-14, -16, 28, 32, 125, 377)
+	SpriteFrame(-14, -16, 28, 32, 125, 410)
+
 	SpriteFrame(-6, -6, 16, 24, 323, 58)
 	SpriteFrame(-8, 0, 24, 24, 340, 58)
 	SpriteFrame(-8, 8, 24, 16, 365, 58)
@@ -733,6 +755,7 @@ event ObjectStartup
 	SpriteFrame(-16, -9, 24, 24, 323, 83)
 	SpriteFrame(-8, -40, 16, 7, 348, 100)
 	SpriteFrame(-8, -40, 16, 7, 348, 108)
+
 	object[2].type = TypeName[Player Object]
 	object[2].priority = PRIORITY_ACTIVE
 	object[2].value2 = 0x1000
@@ -750,6 +773,10 @@ event ObjectStartup
 	case 2
 		object[2].value3 = 88
 		object[2].value4 = 32
+		break
+	case 5
+		object[2].value3 = 88
+		object[2].value4 = 48
 		break
 	end switch
 	object[2].value3 <<= 8
