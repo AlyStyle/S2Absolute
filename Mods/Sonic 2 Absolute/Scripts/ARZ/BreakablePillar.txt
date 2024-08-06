@@ -84,7 +84,15 @@ event ObjectMain
 			if object.state < 3
 				BoxCollisionTest(C_BOX, object.entityPos, -16, temp0, 16, 32, currentPlayer, HITBOX_AUTO, HITBOX_AUTO, HITBOX_AUTO, HITBOX_AUTO)
 				if checkResult == 1
-					object[currentPlayer].animation = ANI_JUMPING
+					if stage.playerlistpos == 5
+						if saved.amymoveset == 1
+							object[currentPlayer].animation = 49
+						else
+							object[currentPlayer].animation = ANI_JUMPING
+						end if
+					else
+						object[currentPlayer].animation = ANI_JUMPING
+					end if
 					if object[currentPlayer].state == PlayerObject_KnuxGlideLeft
 						FlipSign(object[currentPlayer].xvel)
 						object[currentPlayer].speed = object[currentPlayer].xvel

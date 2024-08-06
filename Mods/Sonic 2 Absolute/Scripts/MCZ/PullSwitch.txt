@@ -59,7 +59,15 @@ event ObjectMain
 			BoxCollisionTest(C_TOUCH, object.entityPos, -8, 0, 8, 64, currentPlayer, HITBOX_AUTO, HITBOX_AUTO, HITBOX_AUTO, HITBOX_AUTO)
 			if checkResult == 1
 				if object[currentPlayer].jumpPress == 1
-					object[currentPlayer].animation = ANI_JUMPING
+					if saved.amymoveset == 1
+						if stage.playerlistpos == 5
+							object[currentPlayer].animation = ANI_BOUNCING
+						else
+							object[currentPlayer].animation = ANI_JUMPING
+						end if
+					else
+						object[currentPlayer].animation = ANI_JUMPING
+					end if
 					PlaySfx(SfxName[Jump], 0)
 					object[currentPlayer].value35 = 1
 					object[currentPlayer].state = PlayerObject_HandleAir
