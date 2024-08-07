@@ -1744,6 +1744,7 @@ function PlayerObject_StartJump
 		ObjectTileCollision(CSIDE_FLOOR, 0, temp0, object.collisionPlane)
 	end if
 	if temp1 == 0
+		temp2 = 0
 		if object.propertyValue == 5
 			if object.up == 1
 				if saved.AmyMoveset == 0
@@ -1769,7 +1770,6 @@ function PlayerObject_StartJump
 		object.yvel >>= 8
 		object.speed = object.xvel
 		object.scrollTracking = 1
-		object.animation = ANI_JUMPING
 		object.angle = 0
 		object.collisionMode = CMODE_FLOOR
 		object.value1 = 1
@@ -5273,7 +5273,6 @@ end function
 
 
 event ObjectStartup
-	saved.amymoveset = 1
 	playerCount = 0
 	foreach (TypeName[Player Object], arrayPos0, ALL_ENTITIES)
 		screen.cameraEnabled = 1

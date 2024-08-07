@@ -416,7 +416,7 @@ function HUD_DrawTimeAttack
 		end if
 	end if
 	temp1 += 60
-	DrawNumbers(0, temp1, 25, object[0].value0, 3, 8, 0)
+	DrawNumbers(0, temp1, 25, saved.AmyMoveset, 3, 8, 0)
 	
 	//Best
 	temp1 = screen.ysize

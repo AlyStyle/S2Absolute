@@ -490,6 +490,9 @@ event ObjectMain
 				if select.char == 3
 					stage.playerListPos = 100
 				end if
+				if select.char == 4
+					stage.playerListPos = 5
+				end if
 				player.lives = 3
 				player.continues = 0
 				player.score = 0
