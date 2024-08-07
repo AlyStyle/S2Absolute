@@ -102,16 +102,6 @@ event ObjectMain
 		end if
 		object.value20 = 3
 		SetPaletteFade(1, 0, object.value20, object.value2, 0, 255)
-		if stage.playerListPos != 0
-			if stage.playerListPos != 3
-				stage[0].activeLayer = 1
-				object[0].xpos = 0xD40000
-				object[0].ypos = 0x1050000
-				object.frame = 4
-				object.value2 = 976
-				object.state = 4
-			end if
-		end if
 		SetActivePalette(1, 0, screen.ysize)		
 		break
 	case 1
@@ -212,11 +202,6 @@ event ObjectMain
 			object[tempObjectPos].xpos <<= 16
 		end if
 		temp0 = 488
-		if stage.playerListPos != 0
-			if stage.playerListPos != 3
-				temp0 = 0xA30
-			end if
-		end if
 		if object.value3 == temp0
 			object[33].type = TypeName[Tornado]
 			object[33].priority = PRIORITY_ACTIVE
@@ -275,8 +260,25 @@ end event
 event ObjectStartup
 	LoadSpriteSheet("Ending/Objects.gif")
 	SpriteFrame(-48, -36, 96, 72, 318, 1)
-	SpriteFrame(-48, -36, 96, 72, 415, 1)
-	SpriteFrame(-48, -36, 96, 72, 318, 74)
+
+	switch stage.playerlistpos
+		case 0
+			SpriteFrame(-48, -36, 96, 72, 415, 1)
+			SpriteFrame(-48, -36, 96, 72, 318, 74)
+		break
+		case 1
+		case 2
+			if stage.player2enabled == 1
+				SpriteFrame(-48, -36, 96, 72, 415, 1)
+				SpriteFrame(-48, -36, 96, 72, 318, 74)
+			else
+				SpriteFrame(-48, -36, 96, 72, 242, 273)
+				SpriteFrame(-48, -36, 96, 72, 242, 346)
+			end if
+		break
+	end switch
+	
+	
 	SpriteFrame(-48, -36, 96, 72, 415, 74)
 	SetMusicTrack("Ending.ogg", 0, 0)
 	animalType1 = TypeName[Blank Object]

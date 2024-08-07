@@ -105,17 +105,28 @@ function Tornado_Function98
 	object.frame++
 	object.frame &= 3
 	if object.value2 < 2
-		if stage.playerListPos == 1
-			GetTableValue(object.value1, object.value3, Tornado_table41)
-			object.value3++
-			GetTableValue(object.value2, object.value3, Tornado_table41)
-			object.value3++
-		else
+		switch stage.playerListPos
+		case 1
+		case 2
+			if stage.player2enabled == 1
+				GetTableValue(object.value1, object.value3, Tornado_table42)
+				object.value3++
+				GetTableValue(object.value2, object.value3, Tornado_table42)
+				object.value3++
+			else
+				GetTableValue(object.value1, object.value3, Tornado_table41)
+				object.value3++
+				GetTableValue(object.value2, object.value3, Tornado_table41)
+				object.value3++
+			end if
+		break
+		case 0
 			GetTableValue(object.value1, object.value3, Tornado_table42)
 			object.value3++
 			GetTableValue(object.value2, object.value3, Tornado_table42)
 			object.value3++
-		end if
+		break
+		end switch
 		object.value3 &= 15
 	else
 		object.value2--
@@ -267,11 +278,19 @@ event ObjectMain
 			if object.value4 >= 28
 				object.value0 = 0
 				object.value4 = 0
-				if stage.playerListPos == 1
-					object.frame = 49
-				else
+				switch stage.playerListPos
+				case 1
+				case 2
+					if stage.player2enabled == 1
+						object.frame = 50
+					else
+						object.frame = 49
+					end if
+					break
+				case 0
 					object.frame = 50
-				end if
+					break
+				end switch
 				object.xpos -= 0x220000
 				object.ypos += 0x450000
 				object.state = 4
