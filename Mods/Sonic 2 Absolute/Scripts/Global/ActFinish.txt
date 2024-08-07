@@ -518,6 +518,10 @@ event ObjectStartup
 		SpriteFrame(-94, 0, 128, 16, 34, 188) //0 Knuckles
 		SpriteFrame(40, 0, 48, 16, 1, 205) //1 Got
 		break
+	case 5
+		SpriteFrame(-64, 0, 53, 16, 260, 230) //0 Amy
+		SpriteFrame(16, 0, 48, 16, 1, 205) //1 Got
+		break
 	end switch
 	SpriteFrame(-88, 0, 112, 16, 50, 205) //2 Through
 	SpriteFrame(33, 0, 46, 16, 163, 205) //3 Act
@@ -558,6 +562,10 @@ event ObjectStartup
 	case 2
 		SpriteFrame(-8, -11, 16, 23, 178, 137) //24
 		SpriteFrame(-8, -11, 16, 23, 195, 137) //25
+		break
+	case 5
+		SpriteFrame(-8, -12, 16, 24, 212, 137) //24
+		SpriteFrame(-8, -12, 16, 24, 229, 137) //25
 		break
 	end switch
 	

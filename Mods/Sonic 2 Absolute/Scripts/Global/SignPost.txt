@@ -387,6 +387,15 @@ event ObjectStartup
 		SpriteFrame(-4, -16, 8, 32, 247, 2)
 		SpriteFrame(-16, -16, 32, 32, 149, 132) //smear to the left
 		break
+	case 5
+		SpriteFrame(-16, -16, 32, 32, 165, 164) //smear to the right
+		SpriteFrame(-4, -16, 8, 32, 247, 2)
+		SpriteFrame(-16, -16, 32, 32, 198, 164) //smear to the left
+		SpriteFrame(-24, -16, 48, 32, 116, 164)
+		SpriteFrame(-16, -16, 32, 32, 165, 164) //smear to the right
+		SpriteFrame(-4, -16, 8, 32, 247, 2)
+		SpriteFrame(-16, -16, 32, 32, 198, 164) //smear to the left
+		break
 	end switch
 	foreach (TypeName[Sign Post], arrayPos0, ALL_ENTITIES)	
 		CheckGreater(object[arrayPos0].propertyValue, 0)

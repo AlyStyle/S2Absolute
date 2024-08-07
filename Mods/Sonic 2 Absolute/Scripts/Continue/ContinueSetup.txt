@@ -47,8 +47,10 @@ event ObjectMain
 			break
 		case 2
 		case 4
-		case 5
 			temp1 = 0xA80000
+			break
+		case 5
+			temp1 = 0xAB0000
 			break
 		end switch
 		temp2 = temp1
