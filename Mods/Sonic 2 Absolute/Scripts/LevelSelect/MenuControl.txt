@@ -510,13 +510,13 @@ event ObjectMain
 				if inputPress.left == 1
 					stage.playerListPos--
 					while stage.playerListPos < 0
-						stage.playerListPos += 5
+						stage.playerListPos += 7
 					loop
 					temp1 = 1
 				end if
 				if inputPress.right == 1
 					stage.playerListPos++
-					stage.playerListPos %= 5
+					stage.playerListPos %= 7
 					temp1 = 1
 				end if
 				if temp1 == 1
@@ -545,6 +545,16 @@ event ObjectMain
 							EditMenuEntry(MENU_1, "KNUCKLES & TAILS", 22, 1)
 							SetTableValue(16, 89, MenuControl_table0)
 							SetTableValue(16, 137, MenuControl_table0)
+							break
+						case 5
+							EditMenuEntry(MENU_1, "AMY", 22, 1)
+							SetTableValue(17, 89, MenuControl_table0)
+							SetTableValue(17, 137, MenuControl_table0)
+							break
+						case 6
+							EditMenuEntry(MENU_1, "AMY & TAILS", 22, 1)
+							SetTableValue(17, 89, MenuControl_table0)
+							SetTableValue(17, 137, MenuControl_table0)
 							break
 					end switch
 				end if
@@ -773,6 +783,16 @@ event ObjectStartup
 			SetTableValue(16, 89, MenuControl_table0)
 			SetTableValue(16, 137, MenuControl_table0)
 			break
+		case 5
+			EditMenuEntry(MENU_1, "AMY", 22, 1)
+			SetTableValue(17, 89, MenuControl_table0)
+			SetTableValue(17, 137, MenuControl_table0)
+			break
+		case 6
+			EditMenuEntry(MENU_1, "AMY & TAILS", 22, 1)
+			SetTableValue(17, 89, MenuControl_table0)
+			SetTableValue(17, 137, MenuControl_table0)
+		break
 	end switch
 end event
 
